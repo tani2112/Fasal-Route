@@ -59,6 +59,7 @@ async def voice_decision_endpoint(
         audio_bytes = await audio_file.read()
 
     # Step 1: Saaras v4 (STT)
+    stt_latency = 12
     if audio_bytes:
         fname = audio_file.filename if audio_file and audio_file.filename else "audio.webm"
         stt_res = await transcribe_audio(
@@ -66,15 +67,48 @@ async def voice_decision_endpoint(
             language_code=language_code,
             filename=fname,
         )
-        transcript = stt_res["transcript"]
+        stt_latency = stt_res.get("latency_ms", 240)
+        transcript = (stt_res.get("transcript") or "").strip()
+        if not transcript and query_text:
+            transcript = query_text.strip()
     else:
-        transcript = query_text or "2 tonnes of tomatoes in Kolar, what should I do?"
+        transcript = (query_text or "2 tonnes of tomatoes in Kolar, what should I do?").strip()
         stt_res = {
             "transcript": transcript,
             "detected_language": language_code,
             "model": "saaras:v4",
-            "latency_ms": 235,
-            "mode": "text_fallback",
+            "latency_ms": 12,
+            "mode": "text_input",
+        }
+
+    # If transcript is empty (silence, mic unread, or unparsed)
+    if not transcript:
+        unclear_notice_kn = "ಧ್ವನಿ ಸ್ಪಷ್ಟವಾಗಿ ಕೇಳಿಸಲಿಲ್ಲ. ದಯವಿಟ್ಟು ಮೈಕ್ ಬಳಿ ಮತ್ತೊಮ್ಮೆ ಮಾತನಾಡಿ ಅಥವಾ ಸರ್ಚ್ ಬಾಕ್ಸ್ ಬಳಸಿ."
+        unclear_notice_hi = "आवाज़ स्पष्ट नहीं आई। कृपया दोबारा बोलें या सर्च बॉक्स में लिखें।"
+        unclear_notice_en = "Could not detect clear speech. Please speak closer to the mic or type your question."
+        notice_text = unclear_notice_kn if language_code.startswith("kn") else unclear_notice_hi if language_code.startswith("hi") else unclear_notice_en
+
+        tts_res = await synthesize_speech(text=notice_text, language_code=language_code)
+        return {
+            "transcript": "(No speech detected - please tap mic and speak again)",
+            "language_code": language_code,
+            "intent": "unknown",
+            "entities": {"crop": "unknown", "quantity_kg": 0},
+            "tool_call": None,
+            "decision": None,
+            "spoken_text": notice_text,
+            "validation_passed": True,
+            "audio_base64": tts_res.get("audio_base64", ""),
+            "audio_playback_url": tts_res.get("audio_url", ""),
+            "telemetry": {
+                "total_latency_ms": stt_latency + tts_res.get("latency_ms", 200),
+                "models": {
+                    "hear": {"model": "saaras:v4", "latency_ms": stt_latency},
+                    "speak": {"model": "bulbul:v4-flash", "latency_ms": tts_res.get("latency_ms", 200)},
+                },
+                "credits_used_estimate": 0.01,
+                "mode": "live",
+            },
         }
 
     # Step 2 & 3: Sarvam-105B & Engine
@@ -90,7 +124,7 @@ async def voice_decision_endpoint(
     )
 
     total_latency = (
-        stt_res["latency_ms"]
+        stt_latency
         + llm_res["latency_ms"]["think"]
         + llm_res["latency_ms"]["engine"]
         + llm_res["latency_ms"]["write"]

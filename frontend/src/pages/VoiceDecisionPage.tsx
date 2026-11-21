@@ -64,6 +64,7 @@ export const VoiceDecisionPage: React.FC<VoiceDecisionPageProps> = ({
     if (!queryText.trim()) return;
     setIsProcessing(true);
     setUserTranscript(queryText);
+    setLastBase64Audio(null);
     playMicStopSound();
 
     const langCode = i18n.language === 'kn' ? 'kn-IN' : i18n.language === 'hi' ? 'hi-IN' : i18n.language === 'mr' ? 'mr-IN' : i18n.language === 'ta' ? 'ta-IN' : 'en-IN';
@@ -183,6 +184,7 @@ export const VoiceDecisionPage: React.FC<VoiceDecisionPageProps> = ({
 
     playMicStopSound();
     setIsProcessing(true);
+    setLastBase64Audio(null);
 
     const audioBlob = await stopRecording();
     const langCode = i18n.language === 'kn' ? 'kn-IN' : i18n.language === 'hi' ? 'hi-IN' : i18n.language === 'mr' ? 'mr-IN' : i18n.language === 'ta' ? 'ta-IN' : 'en-IN';

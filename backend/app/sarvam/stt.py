@@ -37,8 +37,8 @@ async def transcribe_audio(
     files = {"file": (filename, audio_bytes, mime)}
     data = {
         "model": "saaras:v4",
-        "language-code": language_code,
-        "mode": "codemix",
+        "language_code": language_code,
+        "mode": "transcribe",
     }
 
     resp = await active_client.post_request(

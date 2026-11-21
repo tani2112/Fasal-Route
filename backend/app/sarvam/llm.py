@@ -40,21 +40,39 @@ CRITICAL MANDATE:
 4. State the recommended split clearly: how much to sell locally today, how much to send to the distant mandi, and the exact net extra rupees in hand.
 """
 
+def normalize_indic_digits(text: str) -> str:
+    devanagari = "०१२३४५६७८९"
+    kannada = "೦೧೨೩೪೫೬೭೮೯"
+    tamil = "௦௧௨௩௪௫௬௭௮௯"
+    res = []
+    for ch in text:
+        if ch in devanagari:
+            res.append(str(devanagari.index(ch)))
+        elif ch in kannada:
+            res.append(str(kannada.index(ch)))
+        elif ch in tamil:
+            res.append(str(tamil.index(ch)))
+        else:
+            res.append(ch)
+    return "".join(res)
+
 def extract_entities_from_text(query: str) -> Dict[str, Any]:
     """Helper entity parser for regex fallback and mock validation."""
-    lower = query.lower()
+    lower = normalize_indic_digits(query.lower())
 
     # Crop
     crop = "tomato"
-    if any(k in lower for k in ["onion", "प्याज", "ಈರುಳ್ಳಿ", "कांदा", "வெங்காய"]):
+    if any(k in lower for k in ["onion", "onions", "प्याज", "ಈರುಳ್ಳಿ", "ಇರುಳ್ಳಿ", "कांदा", "வெங்காய"]):
         crop = "onion"
-    elif any(k in lower for k in ["potato", "आलू", "ಆಲೂಗಡ್ಡೆ", "बटाटा", "உருளை"]):
+    elif any(k in lower for k in ["potato", "potatoes", "आलू", "ಆಲೂಗಡ್ಡೆ", "ಆಲೂ", "बटाटा", "உருளை"]):
         crop = "potato"
+    elif any(k in lower for k in ["tomato", "tomatoes", "टमाटर", "ಟೊಮೇಟೊ", "ಟೊಮೆಟೊ", "टोमॅटो", "தக்காளி"]):
+        crop = "tomato"
 
     # Quantity
     quantity_kg = 2000.0 # default 2 tonnes (Ramesh scenario)
-    t_match = re.search(r"(\d+(?:\.\d+)?)\s*(?:tonne|ton|टन|ಟನ್|ตัน|டன்)", lower)
-    q_match = re.search(r"(\d+(?:\.\d+)?)\s*(?:quintal|qtl|क्विंटल|ಕ್ವಿಂಟಾಲ್|குவிண்டால்)", lower)
+    t_match = re.search(r"(\d+(?:\.\d+)?)\s*(?:tonne|ton|टन|ಟನ್|ตัน|டன்|t\b)", lower)
+    q_match = re.search(r"(\d+(?:\.\d+)?)\s*(?:quintal|qtl|क्विंटल|ಕ್ವಿಂಟಾಲ್|குவிண்டால்|q\b)", lower)
     kg_match = re.search(r"(\d+(?:\.\d+)?)\s*(?:kg|kilo|किग्रा|ಕೆಜಿ|கிலோ)", lower)
 
     if t_match:
@@ -63,6 +81,10 @@ def extract_entities_from_text(query: str) -> Dict[str, Any]:
         quantity_kg = float(q_match.group(1)) * 100.0
     elif kg_match:
         quantity_kg = float(kg_match.group(1))
+    else:
+        bare_match = re.search(r"\b(\d{3,5})\b", lower)
+        if bare_match:
+            quantity_kg = float(bare_match.group(1))
 
     # Intent
     intent = "sell_advice"

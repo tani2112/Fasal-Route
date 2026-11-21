@@ -40,16 +40,18 @@ export async function simulateSarvamPipeline(
 
   // 1. Entity Extraction
   let crop = 'tomato';
-  if (lower.includes('onion') || lower.includes('प्याज') || lower.includes('ಈರುಳ್ಳಿ') || lower.includes('कांदा') || lower.includes('வெங்காய')) {
+  if (lower.includes('onion') || lower.includes('प्याज') || lower.includes('ಈರುಳ್ಳಿ') || lower.includes('ಇರುಳ್ಳಿ') || lower.includes('कांदा') || lower.includes('வெங்காய')) {
     crop = 'onion';
-  } else if (lower.includes('potato') || lower.includes('आलू') || lower.includes('ಆಲೂಗಡ್ಡೆ') || lower.includes('बटाटा') || lower.includes('உருளை')) {
+  } else if (lower.includes('potato') || lower.includes('आलू') || lower.includes('ಆಲೂಗಡ್ಡೆ') || lower.includes('ಆಲೂ') || lower.includes('बटाटा') || lower.includes('உருளை')) {
     crop = 'potato';
+  } else if (lower.includes('tomato') || lower.includes('टमाटर') || lower.includes('ಟೊಮೇಟೊ') || lower.includes('ಟೊಮೆಟೊ') || lower.includes('टोमॅटो') || lower.includes('தக்காளி')) {
+    crop = 'tomato';
   }
 
   // Detect quantity
   let quantityKg = 2000; // default 2 tonnes (Ramesh scenario)
-  const matchTonnes = queryTextOrVoice.match(/(\d+(?:\.\d+)?)\s*(?:tonne|ton|टन|ಟನ್|टन|டன்)/i);
-  const matchQuintal = queryTextOrVoice.match(/(\d+(?:\.\d+)?)\s*(?:quintal|qtl|क्विंटल|ಕ್ವಿಂಟಾಲ್|क्विंटल|குவிண்டால்)/i);
+  const matchTonnes = queryTextOrVoice.match(/(\d+(?:\.\d+)?)\s*(?:tonne|ton|टन|ಟನ್|टन|டன்|t)/i);
+  const matchQuintal = queryTextOrVoice.match(/(\d+(?:\.\d+)?)\s*(?:quintal|qtl|क्विंटल|ಕ್ವಿಂಟಾಲ್|क्विंटल|குவிண்டால்|q)/i);
   const matchKg = queryTextOrVoice.match(/(\d+(?:\.\d+)?)\s*(?:kg|kilo|किग्रा|ಕೆಜಿ|கிலோ)/i);
 
   if (matchTonnes) {
