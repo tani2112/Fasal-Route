@@ -1,0 +1,46 @@
+/* FasalRoute Design Tokens
+   Extracted from Fineprint Neo-Brutalist Theme with Agriculture Earth Palette
+*/
+
+:root {
+  /* Palette */
+  --bg-canvas: #F7F6EE;
+  --bg-canvas-light: #FCFBF7;
+  --bg-canvas-dark: #EFECE1;
+  
+  --color-forest: #0F2B20;
+  --color-forest-dark: #0A1D16;
+  --color-forest-light: #1B4736;
+  
+  --color-leaf: #2D6A4F;
+  --color-leaf-light: #40916C;
+  
+  --color-amber: #F2B134;
+  --color-amber-hover: #E29F20;
+  --color-amber-light: #FEF5E0;
+  
+  --color-soil: #141C18;
+  --color-soil-muted: #586960;
+  --color-soil-border: #141C18;
+  
+  --color-tomato: #E63946;
+  --color-tomato-light: #FDECEE;
+
+  --color-card-white: #FFFFFF;
+  
+  /* Neo-Brutalist Shadows */
+  --shadow-neo-sm: 2px 2px 0px #141C18;
+  --shadow-neo: 3.5px 3.5px 0px #141C18;
+  --shadow-neo-lg: 6px 6px 0px #141C18;
+  --shadow-neo-amber: 3.5px 3.5px 0px #B87B0E;
+  
+  /* Radii */
+  --radius-sm: 8px;
+  --radius-md: 14px;
+  --radius-lg: 20px;
+  --radius-pill: 9999px;
+  
+  /* Borders */
+  --border-width: 2px;
+  --border-width-thick: 3px;
+}

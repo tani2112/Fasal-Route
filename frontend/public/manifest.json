@@ -1,0 +1,18 @@
+{
+  "short_name": "FasalRoute",
+  "name": "FasalRoute — Voice AI Harvest Co-Pilot",
+  "icons": [
+    {
+      "src": "/favicon.svg",
+      "type": "image/svg+xml",
+      "sizes": "64x64 192x192 512x512"
+    }
+  ],
+  "start_url": "/",
+  "background_color": "#F7F6EE",
+  "theme_color": "#0F2B20",
+  "display": "standalone",
+  "orientation": "portrait-primary",
+  "lang": "en-IN",
+  "categories": ["agriculture", "productivity", "utilities"]
+}
