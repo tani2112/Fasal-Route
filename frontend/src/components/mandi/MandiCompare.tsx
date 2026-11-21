@@ -1,7 +1,7 @@
 import React, { useState } from 'react';
 import { useTranslation } from 'react-i18next';
-import { MapPin, Navigation, TrendingUp, Truck, Scale, ShieldCheck, ArrowRight, Info } from 'lucide-react';
-import { CROPS, MANDIS, SEEDED_RATES } from '../../lib/mandiData';
+import { MapPin, Navigation, TrendingUp, Truck, Scale, ShieldCheck, ArrowRight } from 'lucide-react';
+import { CROPS, MANDIS } from '../../lib/mandiData';
 import { optimizeHarvestDecision } from '../../lib/offlineEngine';
 
 export const MandiCompare: React.FC = () => {
@@ -20,21 +20,21 @@ export const MandiCompare: React.FC = () => {
   return (
     <div className="max-w-5xl mx-auto space-y-6">
       {/* Header */}
-      <div className="flex flex-col sm:flex-row sm:items-center sm:justify-between gap-4 border-b-2 border-soil/20 pb-4">
+      <div className="flex flex-col sm:flex-row sm:items-center sm:justify-between gap-4 pb-2">
         <div>
-          <div className="neo-pill bg-leaf/10 text-leaf border-leaf/60 mb-2">
-            ● 5-MANDI REAL-TIME CORRIDOR
+          <div className="inline-flex items-center gap-1.5 px-3 py-1 rounded-full bg-emerald-50 text-emerald-700 text-xs font-semibold mb-2 border border-emerald-100">
+            ● 5-Mandi Real-Time Corridor
           </div>
-          <h2 className="text-2xl sm:text-3xl font-display font-extrabold text-soil">
+          <h2 className="text-2xl sm:text-3xl font-display font-bold text-forest">
             {t('compare.title')}
           </h2>
-          <p className="text-sm text-soil-muted mt-1">
+          <p className="text-sm text-gray-500 mt-1">
             Kolar Agro-Hub baseline vs surrounding APMCs with shrinkage and diesel factored in.
           </p>
         </div>
 
         {/* Crop Selector Chips */}
-        <div className="flex items-center gap-1.5 p-1 bg-white border-2 border-soil rounded-xl shadow-neo-sm">
+        <div className="flex items-center gap-1.5 p-1 bg-white border border-emerald-100 rounded-full shadow-xs">
           {cropsList.map((c) => {
             const isSelected = selectedCrop === c.id;
             const cropNameLocalized =
@@ -43,10 +43,10 @@ export const MandiCompare: React.FC = () => {
               <button
                 key={c.id}
                 onClick={() => setSelectedCrop(c.id)}
-                className={`px-3 py-1.5 rounded-lg text-xs font-bold transition-all ${
+                className={`px-4 py-1.5 rounded-full text-xs font-semibold transition-all ${
                   isSelected
-                    ? 'bg-amber text-soil border border-soil shadow-neo-sm'
-                    : 'text-soil-muted hover:bg-canvas'
+                    ? 'bg-emerald-600 text-white shadow-xs'
+                    : 'text-gray-600 hover:text-emerald-700 hover:bg-emerald-50'
                 }`}
               >
                 {cropNameLocalized}
@@ -56,19 +56,19 @@ export const MandiCompare: React.FC = () => {
         </div>
       </div>
 
-      {/* Quantity & Baseline Pill Strip */}
-      <div className="bg-canvas-light border-2 border-soil rounded-2xl p-4 shadow-neo-sm flex flex-wrap items-center justify-between gap-3">
+      {/* Harvest Load Filter */}
+      <div className="bg-white rounded-2xl p-4 border border-emerald-100 shadow-xs flex flex-wrap items-center justify-between gap-3">
         <div className="flex items-center gap-3">
-          <span className="text-xs font-mono font-bold text-soil uppercase">Harvest Load:</span>
+          <span className="text-xs font-semibold text-gray-500">Harvest Weight:</span>
           <div className="flex items-center gap-1.5">
             {[1000, 2000, 5000].map((kg) => (
               <button
                 key={kg}
                 onClick={() => setQuantityKg(kg)}
-                className={`px-2.5 py-1 rounded-lg text-xs font-bold border transition-all ${
+                className={`px-3 py-1 rounded-full text-xs font-medium transition-all ${
                   quantityKg === kg
-                    ? 'bg-forest text-white border-soil'
-                    : 'bg-white border-soil/30 text-soil hover:bg-canvas'
+                    ? 'bg-emerald-100 text-emerald-800 font-bold'
+                    : 'bg-gray-50 text-gray-600 hover:bg-gray-100'
                 }`}
               >
                 {kg / 1000} Tonne{kg > 1000 ? 's' : ''} ({kg} kg)
@@ -77,16 +77,16 @@ export const MandiCompare: React.FC = () => {
           </div>
         </div>
 
-        <div className="text-xs font-mono text-soil-muted flex items-center gap-2">
+        <div className="text-xs text-gray-400 flex items-center gap-2">
           <span>Diesel: ₹92/L</span>
           <span>·</span>
-          <span>Freight: ₹18/km</span>
+          <span>Freight: ₹14/km</span>
           <span>·</span>
-          <span className="text-leaf font-bold">Code Verified</span>
+          <span className="text-emerald-600 font-medium">100% Code Verified</span>
         </div>
       </div>
 
-      {/* Comparison Cards Grid (Mobile) & Table (Desktop) */}
+      {/* Mandi Cards List */}
       <div className="space-y-3">
         {decision.allMandisComparison.map((row) => {
           const mandi = MANDIS[row.mandiId];
@@ -96,70 +96,66 @@ export const MandiCompare: React.FC = () => {
           return (
             <div
               key={row.mandiId}
-              className={`p-4 sm:p-5 rounded-2xl border-2 transition-all ${
+              className={`p-5 rounded-3xl bg-white border transition-all ${
                 isBest
-                  ? 'bg-white border-leaf shadow-neo-lg ring-2 ring-leaf/20'
-                  : isLocal
-                  ? 'bg-canvas-light border-soil shadow-neo'
-                  : 'bg-white border-soil shadow-neo-sm'
+                  ? 'border-emerald-500 shadow-md ring-2 ring-emerald-500/10'
+                  : 'border-emerald-100 shadow-xs hover:border-emerald-200'
               }`}
             >
               <div className="flex flex-col sm:flex-row sm:items-center justify-between gap-3">
-                {/* Mandi Title & Distance */}
                 <div className="flex items-start gap-3">
                   <div
-                    className={`w-10 h-10 rounded-xl border-2 border-soil flex items-center justify-center font-bold text-base ${
+                    className={`w-10 h-10 rounded-2xl flex items-center justify-center font-bold ${
                       isBest
-                        ? 'bg-leaf text-white'
+                        ? 'bg-emerald-600 text-white'
                         : isLocal
-                        ? 'bg-forest text-white'
-                        : 'bg-canvas-dark text-soil'
+                        ? 'bg-emerald-50 text-emerald-700'
+                        : 'bg-gray-100 text-gray-600'
                     }`}
                   >
                     <MapPin className="w-5 h-5" />
                   </div>
                   <div>
                     <div className="flex items-center gap-2">
-                      <h3 className="font-bold text-soil text-base sm:text-lg">
+                      <h3 className="font-bold text-forest text-base sm:text-lg">
                         {i18n.language === 'kn' ? row.mandiNameKn : i18n.language === 'hi' ? row.mandiNameHi : row.mandiName}
                       </h3>
                       {isBest && (
-                        <span className="px-2 py-0.5 rounded-full bg-leaf text-white text-[10px] font-mono font-bold uppercase">
-                          HIGHEST NET PROFIT
+                        <span className="px-2.5 py-0.5 rounded-full bg-emerald-100 text-emerald-800 text-[10px] font-bold">
+                          HIGHEST NET
                         </span>
                       )}
                       {isLocal && (
-                        <span className="px-2 py-0.5 rounded-full bg-forest text-white text-[10px] font-mono font-bold uppercase">
+                        <span className="px-2.5 py-0.5 rounded-full bg-gray-100 text-gray-700 text-[10px] font-bold">
                           LOCAL BASELINE
                         </span>
                       )}
                     </div>
-                    <div className="text-xs text-soil-muted font-mono mt-0.5 flex items-center gap-2">
+                    <div className="text-xs text-gray-400 mt-0.5 flex items-center gap-2">
                       <span>{row.distanceKm === 0 ? '0 km (Farm gate)' : `${row.distanceKm} km`}</span>
-                      {row.travelTimeHours > 0 && <span>· ~{row.travelTimeHours} hrs transit</span>}
+                      {row.travelTimeHours > 0 && <span>· ~{row.travelTimeHours}h transit</span>}
                       <span>· {mandi.district}</span>
                     </div>
                   </div>
                 </div>
 
-                {/* Net In-Hand Rupee Tag */}
-                <div className="flex sm:flex-col sm:items-end justify-between items-center border-t sm:border-t-0 border-soil/20 pt-2 sm:pt-0">
+                <div className="flex sm:flex-col sm:items-end justify-between items-center pt-2 sm:pt-0">
                   <div className="text-left sm:text-right">
-                    <span className="text-[10px] font-mono text-soil-muted uppercase font-bold block">
+                    <span className="text-[10px] font-semibold text-gray-400 uppercase block">
                       Net In-Hand / Qtl
                     </span>
-                    <span className="text-xl sm:text-2xl font-black font-display text-soil">
+                    <span className="text-2xl font-bold font-display text-forest">
                       ₹{row.netPerQuintal.toLocaleString('en-IN')}
                     </span>
                   </div>
                   {!isLocal && (
-                    <div className="text-xs font-mono font-bold">
+                    <div className="text-xs font-semibold">
                       {row.netGainVsLocalPerQuintal > 0 ? (
-                        <span className="text-leaf">
+                        <span className="text-emerald-600 font-bold">
                           +₹{row.netGainVsLocalPerQuintal}/qtl vs Kolar
                         </span>
                       ) : (
-                        <span className="text-tomato">
+                        <span className="text-red-500 font-bold">
                           -₹{Math.abs(row.netGainVsLocalPerQuintal)}/qtl vs Kolar
                         </span>
                       )}
@@ -168,59 +164,28 @@ export const MandiCompare: React.FC = () => {
                 </div>
               </div>
 
-              {/* Breakdown Row */}
-              <div className="mt-3.5 pt-3 border-t border-soil/15 grid grid-cols-2 sm:grid-cols-4 gap-2 text-xs font-mono">
-                <div className="bg-canvas p-2 rounded-lg border border-soil/20">
-                  <span className="text-[10px] text-soil-muted block">APMC Price:</span>
-                  <span className="font-bold text-soil">₹{row.ratePerQuintal}/qtl</span>
+              {/* Breakdown Grid */}
+              <div className="mt-4 pt-3 border-t border-gray-100 grid grid-cols-2 sm:grid-cols-4 gap-2 text-xs">
+                <div className="bg-gray-50 p-2.5 rounded-xl">
+                  <span className="text-[10px] text-gray-400 block font-medium">Mandi Price:</span>
+                  <span className="font-bold text-gray-800 font-mono">₹{row.ratePerQuintal}/qtl</span>
                 </div>
-                <div className="bg-canvas p-2 rounded-lg border border-soil/20">
-                  <span className="text-[10px] text-soil-muted block">Transport Freight:</span>
-                  <span className="font-bold text-soil">₹{row.transportCost.toLocaleString('en-IN')}</span>
+                <div className="bg-gray-50 p-2.5 rounded-xl">
+                  <span className="text-[10px] text-gray-400 block font-medium">Transport Freight:</span>
+                  <span className="font-bold text-gray-800 font-mono">₹{row.transportCost.toLocaleString('en-IN')}</span>
                 </div>
-                <div className="bg-canvas p-2 rounded-lg border border-soil/20">
-                  <span className="text-[10px] text-soil-muted block">Transit Shrinkage:</span>
-                  <span className="font-bold text-tomato">-₹{row.shrinkageLossRupees.toLocaleString('en-IN')}</span>
+                <div className="bg-gray-50 p-2.5 rounded-xl">
+                  <span className="text-[10px] text-gray-400 block font-medium">Transit Shrinkage:</span>
+                  <span className="font-bold text-red-600 font-mono">-₹{row.shrinkageLossRupees.toLocaleString('en-IN')}</span>
                 </div>
-                <div className="bg-canvas p-2 rounded-lg border border-soil/20">
-                  <span className="text-[10px] text-soil-muted block">Total Load Profit:</span>
-                  <span className="font-black text-forest">₹{row.netProfitFullLoad.toLocaleString('en-IN')}</span>
+                <div className="bg-emerald-50/70 p-2.5 rounded-xl">
+                  <span className="text-[10px] text-emerald-800 block font-medium">Total Net Profit:</span>
+                  <span className="font-extrabold text-emerald-800 font-mono">₹{row.netProfitFullLoad.toLocaleString('en-IN')}</span>
                 </div>
               </div>
             </div>
           );
         })}
-      </div>
-
-      {/* Corridor Map/Route Visual Explainer */}
-      <div className="bg-white border-2 border-soil rounded-2xl p-5 shadow-neo">
-        <h4 className="font-bold text-sm text-soil uppercase tracking-wider font-mono flex items-center gap-1.5 mb-3">
-          <Navigation className="w-4 h-4 text-leaf" />
-          <span>Kolar — Bengaluru Agro Route Corridor</span>
-        </h4>
-        <div className="relative p-4 rounded-xl bg-canvas border border-soil/30 font-mono text-xs">
-          <div className="flex flex-col sm:flex-row items-center justify-between gap-4 text-center">
-            <div className="bg-white p-3 rounded-xl border-2 border-soil w-full sm:w-auto">
-              <div className="font-bold text-forest">Kolar Farm Gate</div>
-              <div className="text-[10px] text-soil-muted">0 km · Local Market</div>
-              <div className="text-xs font-black text-amber mt-1">₹1,850/qtl</div>
-            </div>
-
-            <div className="flex flex-col items-center">
-              <span className="text-[10px] text-soil-muted">NH-75 Express Highway · 65 km</span>
-              <div className="w-24 sm:w-48 h-1 bg-soil my-1 relative">
-                <span className="absolute -top-1.5 left-1/2 -translate-x-1/2 w-3 h-3 rounded-full bg-amber border border-soil"></span>
-              </div>
-              <span className="text-[10px] text-tomato font-bold">2.2% Shrinkage</span>
-            </div>
-
-            <div className="bg-amber/20 p-3 rounded-xl border-2 border-soil w-full sm:w-auto">
-              <div className="font-bold text-forest">KR Market Bengaluru</div>
-              <div className="text-[10px] text-soil-muted">65 km · Urban Mega Hub</div>
-              <div className="text-xs font-black text-forest mt-1">₹2,350/qtl (+₹500)</div>
-            </div>
-          </div>
-        </div>
       </div>
     </div>
   );

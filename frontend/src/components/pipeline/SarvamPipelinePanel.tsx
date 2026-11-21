@@ -1,6 +1,6 @@
 import React, { useState } from 'react';
 import { useTranslation } from 'react-i18next';
-import { Cpu, Mic, Brain, Calculator, PenTool, Volume2, Clock, Coins, ShieldCheck, CheckCircle2, ChevronRight, Sparkles } from 'lucide-react';
+import { Cpu, Mic, Brain, Calculator, PenTool, Volume2, Clock, Coins, ShieldCheck, CheckCircle2, Sparkles } from 'lucide-react';
 import type { SarvamPipelineResult } from '../../lib/mockSarvam';
 
 interface SarvamPipelinePanelProps {
@@ -55,47 +55,44 @@ export const SarvamPipelinePanel: React.FC<SarvamPipelinePanelProps> = ({ pipeli
   ];
 
   const totalLatency = steps.reduce((sum, s) => sum + s.latencyMs, 0);
-
   const stepIcons = [Mic, Brain, Calculator, PenTool, Volume2];
 
   return (
     <div className="max-w-4xl mx-auto space-y-6">
-      {/* Header */}
-      <div className="flex flex-col sm:flex-row sm:items-center justify-between gap-4 border-b-2 border-soil/20 pb-4">
+      <div className="flex flex-col sm:flex-row sm:items-center justify-between gap-4 pb-2">
         <div>
-          <div className="neo-pill bg-amber/20 text-soil border-soil mb-2 flex items-center gap-1.5">
-            <Sparkles className="w-3.5 h-3.5 text-amber-dark" />
-            <span>POWERED BY SARVAM AI · ARCHITECTURE INSPECTOR</span>
+          <div className="inline-flex items-center gap-1.5 px-3 py-1 rounded-full bg-emerald-50 text-emerald-700 text-xs font-semibold mb-2 border border-emerald-100">
+            <Sparkles className="w-3.5 h-3.5 text-emerald-600" />
+            <span>Powered by Sarvam AI · Architecture Inspector</span>
           </div>
-          <h2 className="text-2xl sm:text-3xl font-display font-extrabold text-soil">
+          <h2 className="text-2xl sm:text-3xl font-display font-bold text-forest">
             {t('pipeline.title')}
           </h2>
-          <p className="text-sm text-soil-muted mt-1">
-            "The language model talks. The engine decides." Zero hallucinated rupee figures.
+          <p className="text-sm text-gray-500 mt-1">
+            "The language model talks. The engine decides." Zero hallucinated numbers.
           </p>
         </div>
 
-        {/* Latency & Credits Stat Badge */}
-        <div className="flex items-center gap-2 self-start sm:self-auto font-mono text-xs">
-          <div className="bg-white border-2 border-soil rounded-xl px-3 py-1.5 shadow-neo-sm">
-            <span className="text-[10px] text-soil-muted block">Total Latency</span>
-            <span className="font-bold text-forest text-sm flex items-center gap-1">
-              <Clock className="w-3.5 h-3.5 text-leaf" />
+        <div className="flex items-center gap-2 self-start sm:self-auto text-xs">
+          <div className="bg-white border border-emerald-100 rounded-2xl px-3.5 py-1.5 shadow-xs">
+            <span className="text-[10px] text-gray-400 block font-medium">Total Latency</span>
+            <span className="font-bold text-emerald-700 text-sm flex items-center gap-1">
+              <Clock className="w-3.5 h-3.5 text-emerald-600" />
               {(totalLatency / 1000).toFixed(2)}s
             </span>
           </div>
 
-          <div className="bg-amber/15 border-2 border-soil rounded-xl px-3 py-1.5 shadow-neo-sm">
-            <span className="text-[10px] text-forest block">Estimated Cost</span>
-            <span className="font-bold text-forest text-sm flex items-center gap-1">
-              <Coins className="w-3.5 h-3.5 text-amber-dark" />
+          <div className="bg-amber-50 border border-amber-200 rounded-2xl px-3.5 py-1.5 shadow-xs">
+            <span className="text-[10px] text-amber-700 block font-medium">Estimated Cost</span>
+            <span className="font-bold text-amber-800 text-sm flex items-center gap-1">
+              <Coins className="w-3.5 h-3.5 text-amber-600" />
               ₹0.04 (4p)
             </span>
           </div>
         </div>
       </div>
 
-      {/* Interactive 5-Step Pipeline Strip */}
+      {/* 5-Step Pipeline Buttons */}
       <div className="grid grid-cols-1 sm:grid-cols-5 gap-2.5">
         {steps.map((st, idx) => {
           const Icon = stepIcons[idx % stepIcons.length];
@@ -105,32 +102,32 @@ export const SarvamPipelinePanel: React.FC<SarvamPipelinePanelProps> = ({ pipeli
             <button
               key={st.step}
               onClick={() => setActiveStepTab(idx)}
-              className={`p-3 rounded-2xl border-2 text-left transition-all ${
+              className={`p-3.5 rounded-2xl border text-left transition-all ${
                 isSelected
-                  ? 'bg-soil text-white border-soil shadow-neo -translate-y-1'
-                  : 'bg-white text-soil border-soil/40 hover:border-soil shadow-neo-sm'
+                  ? 'bg-emerald-600 text-white border-emerald-600 shadow-md -translate-y-0.5'
+                  : 'bg-white text-forest border-emerald-100 hover:border-emerald-200 shadow-xs'
               }`}
             >
               <div className="flex items-center justify-between mb-2">
                 <div
-                  className={`w-7 h-7 rounded-lg border flex items-center justify-center ${
-                    isSelected ? 'bg-amber text-soil border-amber' : 'bg-canvas-dark text-soil border-soil/30'
+                  className={`w-7 h-7 rounded-xl flex items-center justify-center ${
+                    isSelected ? 'bg-white/20 text-white' : 'bg-emerald-50 text-emerald-700'
                   }`}
                 >
                   <Icon className="w-3.5 h-3.5" />
                 </div>
-                <span className={`text-[10px] font-mono font-bold ${isSelected ? 'text-amber' : 'text-leaf'}`}>
+                <span className={`text-[10px] font-bold ${isSelected ? 'text-emerald-100' : 'text-emerald-600'}`}>
                   {st.latencyMs}ms
                 </span>
               </div>
 
-              <div className="font-mono text-[10px] font-black uppercase tracking-wider opacity-80">
+              <div className="text-[10px] font-bold uppercase opacity-80">
                 Step {idx + 1}
               </div>
               <div className="font-bold text-xs truncate mt-0.5">
                 {st.model}
               </div>
-              <div className={`text-[10px] truncate ${isSelected ? 'text-white/70' : 'text-soil-muted'}`}>
+              <div className={`text-[10px] truncate ${isSelected ? 'text-white/80' : 'text-gray-400'}`}>
                 {st.name}
               </div>
             </button>
@@ -138,58 +135,53 @@ export const SarvamPipelinePanel: React.FC<SarvamPipelinePanelProps> = ({ pipeli
         })}
       </div>
 
-      {/* Detailed Step Inspector Card */}
-      <div className="bg-white border-3 border-soil rounded-2xl p-5 sm:p-7 shadow-neo-lg font-mono">
-        <div className="flex items-center justify-between border-b-2 border-soil/15 pb-4">
+      {/* Detail Card */}
+      <div className="bg-white border border-emerald-100 rounded-3xl p-6 sm:p-8 shadow-sm space-y-4">
+        <div className="flex items-center justify-between border-b border-gray-100 pb-4">
           <div className="flex items-center gap-2">
-            <span className="w-3 h-3 rounded-full bg-leaf"></span>
-            <h3 className="font-display font-extrabold text-base sm:text-lg text-soil">
+            <span className="w-2.5 h-2.5 rounded-full bg-emerald-500" />
+            <h3 className="font-bold text-base sm:text-lg text-forest">
               Step {activeStepTab + 1}: {steps[activeStepTab].model} — {steps[activeStepTab].name}
             </h3>
           </div>
-          <span className="neo-badge bg-leaf text-white border-soil">
+          <span className="px-2.5 py-0.5 rounded-full bg-emerald-50 text-emerald-700 text-xs font-bold">
             STATUS: 200 OK
           </span>
         </div>
 
-        <div className="my-4 text-xs font-sans text-soil leading-relaxed">
+        <p className="text-xs text-gray-600 leading-relaxed">
           {steps[activeStepTab].detail}
-        </div>
+        </p>
 
-        {/* Step Deep-Dive Data */}
-        <div className="p-3.5 rounded-xl bg-canvas border border-soil/30 text-xs font-mono space-y-2">
-          <div className="text-[10px] text-soil-muted uppercase font-bold tracking-wider">
+        <div className="p-4 rounded-2xl bg-gray-50 border border-gray-100 text-xs space-y-2">
+          <div className="text-[10px] text-gray-400 uppercase font-bold">
             Diagnostic Telemetry
           </div>
-          <div className="grid grid-cols-2 sm:grid-cols-3 gap-2">
+          <div className="grid grid-cols-2 sm:grid-cols-3 gap-3">
             <div>
-              <span className="text-soil-muted text-[10px] block">Latency:</span>
-              <span className="font-bold text-forest">{steps[activeStepTab].latencyMs} milliseconds</span>
+              <span className="text-gray-400 text-[10px] block">Latency:</span>
+              <span className="font-bold text-forest">{steps[activeStepTab].latencyMs} ms</span>
             </div>
             <div>
-              <span className="text-soil-muted text-[10px] block">Provider:</span>
+              <span className="text-gray-400 text-[10px] block">Provider:</span>
               <span className="font-bold text-forest">
-                {activeStepTab === 2 ? 'Local FasalRoute Engine' : 'Sarvam AI Cloud'}
+                {activeStepTab === 2 ? 'FasalRoute Python Core' : 'Sarvam AI Cloud'}
               </span>
             </div>
             <div>
-              <span className="text-soil-muted text-[10px] block">Security Guardrail:</span>
-              <span className="font-bold text-leaf flex items-center gap-1">
+              <span className="text-gray-400 text-[10px] block">Security:</span>
+              <span className="font-bold text-emerald-600 flex items-center gap-1">
                 <ShieldCheck className="w-3.5 h-3.5" />
-                No Key in Browser
+                Key In Backend Only
               </span>
             </div>
           </div>
         </div>
 
-        {/* Golden Rule Banner */}
-        <div className="mt-4 p-3 rounded-xl bg-amber/15 border-2 border-soil text-xs text-soil font-sans flex items-start gap-2">
-          <ShieldCheck className="w-4 h-4 text-forest flex-shrink-0 mt-0.5" />
+        <div className="p-3.5 rounded-2xl bg-emerald-50/70 border border-emerald-100 text-xs text-emerald-950 flex items-start gap-2.5">
+          <ShieldCheck className="w-4 h-4 text-emerald-600 flex-shrink-0 mt-0.5" />
           <div>
-            <strong className="text-forest font-bold">Hard Architectural Boundary:</strong>
-            <span className="text-soil ml-1">
-              The LLM is prompted with strict instruction to invoke tools for calculations. When synthesizing output, an automated validator in our backend compares every numerical entity against the engine's JSON output before sending to Bulbul TTS.
-            </span>
+            <strong className="font-bold">Architectural Guardrail:</strong> The LLM is prohibited from computing prices. When synthesizing the farmer's response, an automated validator in our backend verifies that every number in the sentence strictly matches the engine output before passing it to Bulbul TTS.
           </div>
         </div>
       </div>

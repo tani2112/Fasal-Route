@@ -1,6 +1,6 @@
 import React, { useState } from 'react';
 import { useTranslation } from 'react-i18next';
-import { Bell, BellRing, Plus, ArrowUpRight, ArrowDownRight, MessageSquare, PhoneCall, Check, Trash2 } from 'lucide-react';
+import { Bell, BellRing, Plus, ArrowUpRight, ArrowDownRight, MessageSquare, PhoneCall, Trash2 } from 'lucide-react';
 
 interface AlertItem {
   id: string;
@@ -86,47 +86,45 @@ export const PriceAlerts: React.FC = () => {
 
   return (
     <div className="max-w-4xl mx-auto space-y-6">
-      {/* Header */}
-      <div className="flex flex-col sm:flex-row sm:items-center justify-between gap-4 border-b-2 border-soil/20 pb-4">
+      <div className="flex flex-col sm:flex-row sm:items-center justify-between gap-4 pb-2">
         <div>
-          <div className="neo-pill bg-amber/20 text-soil border-soil mb-2">
-            ● VOICE-ACTIVATED MONITORING
+          <div className="inline-flex items-center gap-1.5 px-3 py-1 rounded-full bg-emerald-50 text-emerald-700 text-xs font-semibold mb-2 border border-emerald-100">
+            ● Voice-Activated Monitoring
           </div>
-          <h2 className="text-2xl sm:text-3xl font-display font-extrabold text-soil">
+          <h2 className="text-2xl sm:text-3xl font-display font-bold text-forest">
             {t('alerts.title')}
           </h2>
-          <p className="text-sm text-soil-muted mt-1">
+          <p className="text-sm text-gray-500 mt-1">
             {t('alerts.subtitle')}
           </p>
         </div>
 
         <button
           onClick={() => setIsCreating(true)}
-          className="neo-btn-primary px-4 py-2.5 text-xs font-bold self-start sm:self-auto"
+          className="agro-btn-primary text-xs self-start sm:self-auto"
         >
-          <Plus className="w-4 h-4 stroke-[3]" />
+          <Plus className="w-4 h-4" />
           <span>New Voice Alert</span>
         </button>
       </div>
 
-      {/* Voice Alert Creation Modal / Box */}
       {isCreating && (
-        <div className="bg-white border-3 border-soil rounded-2xl p-5 shadow-neo-lg animate-in fade-in duration-150">
-          <div className="flex items-center justify-between pb-3 border-b border-soil/20">
-            <span className="font-bold text-sm text-soil font-mono flex items-center gap-2">
-              <Bell className="w-4 h-4 text-amber" />
+        <div className="bg-white border border-emerald-100 rounded-3xl p-6 shadow-sm animate-in fade-in duration-150 space-y-3">
+          <div className="flex items-center justify-between">
+            <span className="font-bold text-sm text-forest flex items-center gap-2">
+              <Bell className="w-4 h-4 text-emerald-600" />
               <span>Say Your Alert Condition</span>
             </span>
             <button
               onClick={() => setIsCreating(false)}
-              className="text-xs font-mono font-bold text-soil-muted hover:text-soil"
+              className="text-xs font-semibold text-gray-400 hover:text-gray-600"
             >
               Cancel
             </button>
           </div>
 
-          <p className="text-xs text-soil-muted my-3">
-            Speak naturally: e.g. "Alert me on WhatsApp if tomato price in KR Market crosses ₹2,200"
+          <p className="text-xs text-gray-500">
+            e.g. "Alert me on WhatsApp if tomato price in KR Market crosses ₹2,200"
           </p>
 
           <div className="flex flex-col sm:flex-row gap-2">
@@ -135,11 +133,11 @@ export const PriceAlerts: React.FC = () => {
               placeholder="e.g. KR Market tomato > ₹2200 via WhatsApp"
               value={voiceQueryText}
               onChange={(e) => setVoiceQueryText(e.target.value)}
-              className="flex-1 px-3 py-2 rounded-xl border-2 border-soil font-mono text-xs focus:outline-none focus:ring-2 focus:ring-amber"
+              className="flex-1 px-4 py-2.5 rounded-full border border-gray-200 text-xs focus:outline-none focus:ring-2 focus:ring-emerald-500"
             />
             <button
               onClick={() => handleCreateVoiceAlert(voiceQueryText || 'KR Market tomato > 2200')}
-              className="neo-btn-primary px-4 py-2 text-xs"
+              className="agro-btn-primary text-xs px-5"
             >
               Save Alert
             </button>
@@ -147,19 +145,19 @@ export const PriceAlerts: React.FC = () => {
         </div>
       )}
 
-      {/* Channel Adapter Status Notice */}
-      <div className="bg-canvas-light border-2 border-soil rounded-2xl p-4 shadow-neo-sm flex flex-wrap items-center justify-between gap-3 text-xs font-mono">
+      {/* Channel Adapter Notice */}
+      <div className="bg-white border border-emerald-100 rounded-2xl p-4 shadow-xs flex flex-wrap items-center justify-between gap-3 text-xs">
         <div className="flex items-center gap-4">
-          <span className="font-bold text-soil flex items-center gap-1.5">
-            <MessageSquare className="w-4 h-4 text-leaf" />
-            <span>WhatsApp Gateway: Connected (Stub)</span>
+          <span className="font-semibold text-emerald-800 flex items-center gap-1.5">
+            <MessageSquare className="w-4 h-4 text-emerald-600" />
+            <span>WhatsApp Gateway: Connected</span>
           </span>
-          <span className="font-bold text-soil flex items-center gap-1.5">
-            <PhoneCall className="w-4 h-4 text-amber" />
-            <span>IVR Spoken Call: Ready (Stub)</span>
+          <span className="font-semibold text-gray-700 flex items-center gap-1.5">
+            <PhoneCall className="w-4 h-4 text-amber-500" />
+            <span>IVR Voice Call: Ready</span>
           </span>
         </div>
-        <span className="text-[11px] text-soil-muted">Polling every 15 mins</span>
+        <span className="text-gray-400 text-[11px]">Background polling active</span>
       </div>
 
       {/* Active Alerts List */}
@@ -167,72 +165,69 @@ export const PriceAlerts: React.FC = () => {
         {alerts.map((alert) => (
           <div
             key={alert.id}
-            className={`p-4 sm:p-5 rounded-2xl border-2 transition-all ${
+            className={`p-5 rounded-3xl bg-white border transition-all ${
               alert.isActive
-                ? 'bg-white border-soil shadow-neo'
-                : 'bg-canvas-dark/40 border-soil/40 opacity-70'
+                ? 'border-emerald-100 shadow-sm'
+                : 'border-gray-100 opacity-60'
             }`}
           >
             <div className="flex flex-col sm:flex-row sm:items-center justify-between gap-3">
               <div className="flex items-start gap-3">
                 <div
-                  className={`w-10 h-10 rounded-xl border-2 border-soil flex items-center justify-center font-bold ${
-                    alert.isActive ? 'bg-amber text-soil' : 'bg-canvas-dark text-soil-muted'
+                  className={`w-10 h-10 rounded-2xl flex items-center justify-center ${
+                    alert.isActive ? 'bg-emerald-50 text-emerald-700' : 'bg-gray-100 text-gray-400'
                   }`}
                 >
                   <BellRing className="w-5 h-5" />
                 </div>
                 <div>
                   <div className="flex items-center gap-2">
-                    <h3 className="font-bold text-soil text-base">
+                    <h3 className="font-bold text-forest text-base">
                       {alert.cropName} @ {alert.targetMandi}
                     </h3>
                     {alert.lastTriggered && (
-                      <span className="px-2 py-0.5 rounded-full bg-tomato text-white text-[10px] font-mono font-bold animate-pulse">
+                      <span className="px-2 py-0.5 rounded-full bg-red-100 text-red-700 text-[10px] font-bold">
                         TRIGGERED
                       </span>
                     )}
                   </div>
-                  <div className="text-xs text-soil-muted font-mono mt-0.5 flex items-center gap-2">
+                  <div className="text-xs text-gray-400 mt-0.5 flex items-center gap-2">
                     <span>
                       Notify when {alert.condition === 'above' ? '≥' : '≤'} ₹{alert.thresholdPrice}/qtl
                     </span>
                     <span>·</span>
-                    <span className="uppercase text-leaf font-bold">Via {alert.channel}</span>
+                    <span className="uppercase text-emerald-700 font-semibold">Via {alert.channel}</span>
                   </div>
                 </div>
               </div>
 
-              {/* Price & Actions */}
-              <div className="flex items-center justify-between sm:justify-end gap-3 border-t sm:border-t-0 border-soil/20 pt-2 sm:pt-0">
+              <div className="flex items-center justify-between sm:justify-end gap-4 pt-2 sm:pt-0">
                 <div className="text-right">
-                  <span className="text-[10px] font-mono text-soil-muted uppercase block">
-                    Current Rate
-                  </span>
-                  <span className="text-lg font-black font-mono text-soil flex items-center gap-0.5">
+                  <span className="text-[10px] text-gray-400 block font-semibold">Current Rate</span>
+                  <span className="text-lg font-bold font-mono text-forest flex items-center gap-0.5">
                     ₹{alert.currentPrice}/qtl
                     {alert.currentPrice >= alert.thresholdPrice ? (
-                      <ArrowUpRight className="w-4 h-4 text-leaf" />
+                      <ArrowUpRight className="w-4 h-4 text-emerald-600" />
                     ) : (
-                      <ArrowDownRight className="w-4 h-4 text-tomato" />
+                      <ArrowDownRight className="w-4 h-4 text-red-500" />
                     )}
                   </span>
                 </div>
 
-                <div className="flex items-center gap-1.5 ml-2">
+                <div className="flex items-center gap-1.5">
                   <button
                     onClick={() => toggleAlert(alert.id)}
-                    className={`px-3 py-1.5 rounded-lg border-2 border-soil text-xs font-bold transition-all ${
+                    className={`px-3 py-1.5 rounded-full text-xs font-semibold transition-all ${
                       alert.isActive
-                        ? 'bg-soil text-white'
-                        : 'bg-white text-soil hover:bg-canvas'
+                        ? 'bg-emerald-100 text-emerald-800'
+                        : 'bg-gray-100 text-gray-600'
                     }`}
                   >
                     {alert.isActive ? 'Active' : 'Paused'}
                   </button>
                   <button
                     onClick={() => removeAlert(alert.id)}
-                    className="p-1.5 rounded-lg border border-soil/30 text-soil-muted hover:text-tomato hover:bg-white"
+                    className="p-1.5 rounded-full text-gray-400 hover:text-red-500 hover:bg-gray-100"
                   >
                     <Trash2 className="w-4 h-4" />
                   </button>

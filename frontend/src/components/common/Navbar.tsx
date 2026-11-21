@@ -1,6 +1,6 @@
 import React, { useState } from 'react';
 import { useTranslation } from 'react-i18next';
-import { Wifi, WifiOff, Volume2, Globe, Cpu, Users, BarChart3, Bell, Leaf, Sparkles } from 'lucide-react';
+import { Wifi, WifiOff, Volume2, Globe, Cpu, Users, BarChart3, Bell, Leaf, ChevronDown } from 'lucide-react';
 import { languages, changeLanguage, type SupportedLanguage } from '../../i18n/i18n';
 
 interface NavbarProps {
@@ -22,63 +22,52 @@ export const Navbar: React.FC<NavbarProps> = ({
   const currentLang = languages.find((l) => l.code === i18n.language) || languages[0];
 
   const navItems = [
-    { id: 'decision', label: t('nav.home'), icon: Volume2 },
-    { id: 'compare', label: t('nav.compare'), icon: BarChart3 },
-    { id: 'alerts', label: t('nav.alerts'), icon: Bell },
-    { id: 'groups', label: t('nav.groups'), icon: Users },
-    { id: 'pipeline', label: t('nav.pipeline'), icon: Cpu, badge: 'SARVAM' },
-    { id: 'impact', label: t('nav.impact'), icon: Leaf },
+    { id: 'decision', label: t('nav.home') },
+    { id: 'compare', label: t('nav.compare') },
+    { id: 'alerts', label: t('nav.alerts') },
+    { id: 'groups', label: t('nav.groups') },
+    { id: 'pipeline', label: t('nav.pipeline'), badge: 'AI' },
+    { id: 'impact', label: t('nav.impact') },
   ];
 
   return (
-    <header className="sticky top-0 z-40 bg-canvas/90 backdrop-blur-md border-b-2 border-soil px-3 sm:px-6 py-2.5">
-      <div className="max-w-6xl mx-auto flex items-center justify-between gap-2 sm:gap-4">
-        {/* Logo and Brand */}
+    <header className="sticky top-0 z-40 px-3 sm:px-6 pt-3 pb-2">
+      {/* Floating Modern Pill Header matching AgroFarm image */}
+      <div className="max-w-6xl mx-auto bg-white/90 backdrop-blur-md rounded-full border border-emerald-100 shadow-sm px-4 sm:px-6 py-2.5 flex items-center justify-between gap-3">
+        {/* Brand Logo */}
         <div
-          className="flex items-center gap-2.5 cursor-pointer group select-none"
+          className="flex items-center gap-2.5 cursor-pointer select-none group"
           onClick={() => setActiveTab('decision')}
         >
-          <div className="w-10 h-10 rounded-xl bg-amber border-2 border-soil shadow-neo-sm flex items-center justify-center font-bold text-lg text-soil group-hover:-translate-y-0.5 group-hover:shadow-neo transition-all">
-            <span className="font-mono text-xl">₹</span>
+          <div className="w-9 h-9 rounded-full bg-emerald-50 text-emerald-600 flex items-center justify-center font-bold text-lg group-hover:bg-emerald-100 transition-colors">
+            <Leaf className="w-5 h-5 fill-emerald-600" />
           </div>
           <div>
             <div className="flex items-center gap-1.5">
-              <span className="font-display font-extrabold text-xl tracking-tight text-soil">
-                FasalRoute
+              <span className="font-display font-extrabold text-xl text-forest tracking-tight">
+                Fasal<span className="text-emerald-600">Route</span>
               </span>
-              <span className="hidden sm:inline-block text-[11px] font-mono px-1.5 py-0.5 rounded bg-leaf/10 border border-leaf text-leaf font-semibold">
-                v1.0
-              </span>
-            </div>
-            <div className="text-[10px] font-mono text-soil-muted font-medium flex items-center gap-1">
-              <span>ex-ONYX</span>
-              <span>·</span>
-              <span className="text-leaf font-semibold">Voice Co-Pilot</span>
             </div>
           </div>
         </div>
 
-        {/* Desktop Nav Items */}
-        <nav className="hidden md:flex items-center gap-1.5 bg-white/70 p-1 rounded-full border-2 border-soil shadow-neo-sm">
+        {/* Center Nav Links */}
+        <nav className="hidden md:flex items-center gap-1">
           {navItems.map((item) => {
-            const Icon = item.icon;
             const isActive = activeTab === item.id;
             return (
               <button
                 key={item.id}
                 onClick={() => setActiveTab(item.id)}
-                className={`relative px-3.5 py-1.5 rounded-full text-xs font-bold transition-all flex items-center gap-1.5 select-none ${
+                className={`px-3.5 py-1.5 rounded-full text-xs font-semibold transition-all relative ${
                   isActive
-                    ? 'bg-soil text-white shadow-sm'
-                    : 'text-soil hover:bg-canvas-dark text-soil-muted'
+                    ? 'text-emerald-700 bg-emerald-50 font-bold'
+                    : 'text-forest-muted hover:text-forest hover:bg-emerald-50/50'
                 }`}
               >
-                <Icon className={`w-3.5 h-3.5 ${isActive ? 'text-amber' : ''}`} />
                 <span>{item.label}</span>
                 {item.badge && (
-                  <span className={`text-[9px] px-1 py-0.2 rounded font-mono ${
-                    isActive ? 'bg-amber text-soil font-black' : 'bg-amber/20 text-soil font-bold'
-                  }`}>
+                  <span className="ml-1 text-[9px] px-1.5 py-0.2 rounded-full bg-amber-100 text-amber-800 font-bold">
                     {item.badge}
                   </span>
                 )}
@@ -92,44 +81,41 @@ export const Navbar: React.FC<NavbarProps> = ({
           {/* Offline Dev Simulation Pill */}
           <button
             onClick={() => setIsOfflineSimulated(!isOfflineSimulated)}
-            title={isOfflineSimulated ? 'Offline mode active (Click to simulate online)' : 'Online mode active (Click to simulate offline)'}
-            className={`flex items-center gap-1.5 px-2.5 py-1 rounded-full border-2 border-soil text-[11px] font-mono font-bold shadow-neo-sm transition-all ${
+            title="Toggle online / offline simulation"
+            className={`flex items-center gap-1.5 px-3 py-1.5 rounded-full text-xs font-semibold transition-all ${
               isOfflineSimulated
-                ? 'bg-tomato text-white animate-pulse'
-                : 'bg-leaf/20 text-forest hover:bg-leaf/30'
+                ? 'bg-red-50 text-red-600 border border-red-200'
+                : 'bg-emerald-50 text-emerald-700 hover:bg-emerald-100/70 border border-emerald-100'
             }`}
           >
             {isOfflineSimulated ? (
               <>
                 <WifiOff className="w-3.5 h-3.5" />
-                <span className="hidden sm:inline">OFFLINE SIM</span>
-                <span className="sm:hidden">OFF</span>
+                <span className="hidden sm:inline">Offline</span>
               </>
             ) : (
               <>
-                <Wifi className="w-3.5 h-3.5 text-leaf" />
-                <span className="hidden sm:inline">ONLINE</span>
-                <span className="sm:hidden">ON</span>
+                <Wifi className="w-3.5 h-3.5 text-emerald-600" />
+                <span className="hidden sm:inline">Online</span>
               </>
             )}
           </button>
 
-          {/* Language Selector Button */}
+          {/* Language Selector Dropdown */}
           <div className="relative">
             <button
               onClick={() => setLangMenuOpen(!langMenuOpen)}
-              className="flex items-center gap-1.5 px-2.5 py-1 rounded-xl bg-white border-2 border-soil text-xs font-bold shadow-neo-sm hover:shadow-neo transition-all"
+              className="flex items-center gap-1.5 px-3 py-1.5 rounded-full bg-emerald-600 hover:bg-emerald-700 text-white text-xs font-semibold shadow-sm transition-all"
             >
-              <Globe className="w-3.5 h-3.5 text-leaf" />
-              <span className="font-semibold">{currentLang.nativeLabel}</span>
-              <span className="text-[10px] text-soil-muted font-mono uppercase">{currentLang.code}</span>
+              <Globe className="w-3.5 h-3.5" />
+              <span>{currentLang.nativeLabel}</span>
+              <ChevronDown className="w-3 h-3 opacity-80" />
             </button>
 
-            {/* Language Dropdown Modal/Menu */}
             {langMenuOpen && (
-              <div className="absolute right-0 mt-2 w-52 bg-white border-2 border-soil rounded-2xl shadow-neo-lg p-2 z-50 animate-in fade-in zoom-in-95 duration-100">
-                <div className="text-[11px] font-mono uppercase tracking-wider text-soil-muted px-2 py-1 border-b border-soil/20 mb-1 font-bold">
-                  Select Language / ಭಾಷೆ
+              <div className="absolute right-0 mt-2 w-48 bg-white border border-emerald-100 rounded-2xl shadow-lg p-1.5 z-50 animate-in fade-in zoom-in-95 duration-100">
+                <div className="text-[10px] uppercase font-bold text-gray-400 px-3 py-1">
+                  Language / ಭಾಷೆ
                 </div>
                 {languages.map((lang) => (
                   <button
@@ -138,21 +124,18 @@ export const Navbar: React.FC<NavbarProps> = ({
                       changeLanguage(lang.code);
                       setLangMenuOpen(false);
                     }}
-                    className={`w-full text-left px-2.5 py-2 rounded-xl text-xs flex items-center justify-between transition-all ${
+                    className={`w-full text-left px-3 py-2 rounded-xl text-xs flex items-center justify-between transition-colors ${
                       i18n.language === lang.code
-                        ? 'bg-amber/30 border border-soil font-bold'
-                        : 'hover:bg-canvas font-medium'
+                        ? 'bg-emerald-50 text-emerald-700 font-bold'
+                        : 'text-gray-700 hover:bg-gray-50'
                     }`}
                   >
                     <div className="flex items-center gap-2">
-                      <span className="text-base">{lang.flag}</span>
-                      <div>
-                        <div className="font-bold text-soil">{lang.nativeLabel}</div>
-                        <div className="text-[10px] text-soil-muted">{lang.label} ({lang.region})</div>
-                      </div>
+                      <span>{lang.flag}</span>
+                      <span>{lang.nativeLabel}</span>
                     </div>
                     {i18n.language === lang.code && (
-                      <span className="w-2 h-2 rounded-full bg-forest"></span>
+                      <span className="w-1.5 h-1.5 rounded-full bg-emerald-600" />
                     )}
                   </button>
                 ))}
@@ -163,21 +146,19 @@ export const Navbar: React.FC<NavbarProps> = ({
       </div>
 
       {/* Mobile Horizontal Navigation Strip */}
-      <div className="md:hidden flex items-center gap-1.5 overflow-x-auto no-scrollbar pt-2 pb-0.5 mt-1 border-t border-soil/15">
+      <div className="md:hidden flex items-center gap-1.5 overflow-x-auto no-scrollbar pt-2 px-1">
         {navItems.map((item) => {
-          const Icon = item.icon;
           const isActive = activeTab === item.id;
           return (
             <button
               key={item.id}
               onClick={() => setActiveTab(item.id)}
-              className={`flex-shrink-0 px-3 py-1 rounded-full text-xs font-bold transition-all flex items-center gap-1.5 ${
+              className={`flex-shrink-0 px-3 py-1 rounded-full text-xs font-semibold transition-all ${
                 isActive
-                  ? 'bg-soil text-white shadow-neo-sm'
-                  : 'bg-white/80 border border-soil/40 text-soil'
+                  ? 'bg-emerald-600 text-white shadow-sm'
+                  : 'bg-white text-gray-700 border border-emerald-100'
               }`}
             >
-              <Icon className={`w-3 h-3 ${isActive ? 'text-amber' : ''}`} />
               <span>{item.label}</span>
             </button>
           );

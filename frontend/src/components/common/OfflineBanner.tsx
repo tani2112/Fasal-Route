@@ -20,28 +20,30 @@ export const OfflineBanner: React.FC<OfflineBannerProps> = ({
   const { t } = useTranslation();
 
   return (
-    <div
-      className={`border-b-2 border-soil px-3 py-1.5 transition-colors text-xs font-mono select-none ${
-        isOffline ? 'bg-amber-light border-soil' : 'bg-canvas-dark/60'
-      }`}
-    >
-      <div className="max-w-6xl mx-auto flex flex-wrap items-center justify-between gap-2">
+    <div className="max-w-6xl mx-auto px-4 sm:px-6 py-1">
+      <div
+        className={`rounded-2xl px-3.5 py-1.5 text-xs font-sans transition-all flex flex-wrap items-center justify-between gap-2 border ${
+          isOffline
+            ? 'bg-amber-50 border-amber-200 text-amber-900'
+            : 'bg-emerald-50/60 border-emerald-100 text-emerald-900'
+        }`}
+      >
         {/* Status indicator */}
         <div className="flex items-center gap-2">
           <span
-            className={`w-2.5 h-2.5 rounded-full border border-soil ${
-              isOffline ? 'bg-tomato animate-ping' : 'bg-leaf'
+            className={`w-2 h-2 rounded-full ${
+              isOffline ? 'bg-amber-500 animate-ping' : 'bg-emerald-500'
             }`}
           />
-          <span className="font-bold text-soil flex items-center gap-1.5">
+          <span className="font-semibold flex items-center gap-1.5">
             {isOffline ? (
               <>
-                <WifiOff className="w-3.5 h-3.5 text-tomato" />
+                <WifiOff className="w-3.5 h-3.5 text-amber-600" />
                 <span>{t('offline.offline')}</span>
               </>
             ) : (
               <>
-                <Wifi className="w-3.5 h-3.5 text-leaf" />
+                <Wifi className="w-3.5 h-3.5 text-emerald-600" />
                 <span>{t('offline.online')}</span>
               </>
             )}
@@ -49,20 +51,20 @@ export const OfflineBanner: React.FC<OfflineBannerProps> = ({
         </div>
 
         {/* Market Pack & Cache info */}
-        <div className="flex items-center gap-3 text-soil-muted text-[11px]">
+        <div className="flex items-center gap-3 text-gray-500 text-[11px]">
           <span className="flex items-center gap-1">
-            <Database className="w-3 h-3 text-soil" />
+            <Database className="w-3 h-3 text-emerald-600" />
             <span className="hidden sm:inline">{t('offline.packStatus')}</span>
-            <span className="sm:hidden">Pack: 5 Mandis</span>
+            <span className="sm:hidden">5 Mandis Cached</span>
           </span>
 
           <span className="flex items-center gap-1">
-            <Clock className="w-3 h-3 text-soil" />
+            <Clock className="w-3 h-3 text-gray-400" />
             <span>Synced {lastSyncedMinutesAgo}m ago</span>
           </span>
 
           {queuedCount > 0 && (
-            <span className="px-1.5 py-0.5 rounded bg-amber text-soil font-bold border border-soil">
+            <span className="px-2 py-0.5 rounded-full bg-amber-100 text-amber-800 font-bold">
               {queuedCount} queued
             </span>
           )}
@@ -71,7 +73,7 @@ export const OfflineBanner: React.FC<OfflineBannerProps> = ({
             <button
               onClick={onSyncNow}
               disabled={isSyncing}
-              className="flex items-center gap-1 px-2 py-0.5 rounded bg-white border border-soil text-[10px] font-bold shadow-neo-sm hover:bg-canvas active:translate-y-0.5"
+              className="flex items-center gap-1 px-2.5 py-0.5 rounded-full bg-white text-emerald-800 border border-emerald-200 shadow-xs hover:bg-emerald-50 text-[11px] font-semibold transition-all"
             >
               <RefreshCw className={`w-3 h-3 ${isSyncing ? 'animate-spin' : ''}`} />
               <span>{isSyncing ? 'Syncing...' : 'Sync'}</span>

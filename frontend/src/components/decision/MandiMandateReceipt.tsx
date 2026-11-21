@@ -1,6 +1,6 @@
 import React from 'react';
 import { useTranslation } from 'react-i18next';
-import { Volume2, VolumeX, CheckCircle2, AlertTriangle, ArrowRight, Truck, Clock, ShieldCheck, Scale, Sparkles } from 'lucide-react';
+import { Volume2, VolumeX, CheckCircle2, AlertTriangle, Truck, Clock, ShieldCheck, Scale, Sparkles } from 'lucide-react';
 import type { DecisionEngineOutput } from '../../lib/offlineEngine';
 
 interface MandiMandateReceiptProps {
@@ -23,27 +23,22 @@ export const MandiMandateReceipt: React.FC<MandiMandateReceiptProps> = ({
   const distantPart = decision.split.find((s) => !s.isLocal);
 
   return (
-    <div className="relative mx-auto max-w-lg w-full">
-      {/* Background shadow accent card for tactile neo-brutalist paper stack feel */}
-      <div className="absolute inset-0 bg-soil rounded-2xl translate-x-2 translate-y-2.5 -z-10" />
-
-      {/* Main Physical Receipt Container */}
-      <div className="bg-white border-3 border-soil rounded-2xl p-5 sm:p-7 relative font-mono overflow-hidden">
-        {/* Top Perforated Receipt Teeth Indicator */}
-        <div className="absolute -top-1 left-0 right-0 flex justify-between px-3">
-          {Array.from({ length: 18 }).map((_, i) => (
-            <div key={i} className="w-3 h-2 bg-canvas rounded-b-md border-b border-soil/40" />
-          ))}
-        </div>
-
-        {/* Top Header & Stamp */}
-        <div className="flex items-start justify-between border-b-2 border-dashed border-soil/30 pb-4 pt-2">
+    <div className="relative mx-auto max-w-xl w-full">
+      {/* Modern Clean Decision Card */}
+      <div className="bg-white rounded-3xl border border-emerald-100/90 shadow-md p-6 sm:p-8 relative">
+        {/* Top Header */}
+        <div className="flex items-start justify-between border-b border-gray-100 pb-4">
           <div>
-            <div className="flex items-center gap-1.5 text-xs font-bold tracking-widest text-forest uppercase">
-              <span className="w-2 h-2 rounded-full bg-leaf"></span>
-              <span>FASALROUTE MANDATE</span>
+            <div className="flex items-center gap-2">
+              <span className="w-2.5 h-2.5 rounded-full bg-emerald-500" />
+              <span className="text-xs font-bold tracking-wider text-emerald-800 uppercase">
+                Mandi Mandate Decision
+              </span>
             </div>
-            <div className="text-[10px] text-soil-muted mt-0.5">
+            <div className="text-xs font-bold text-forest mt-1">
+              Crop: <span className="uppercase text-emerald-700">{decision.cropName}</span> · {decision.totalQuantityKg.toLocaleString('en-IN')} kg
+            </div>
+            <div className="text-[11px] text-gray-400 mt-0.5 font-mono">
               {decision.timestamp ? new Date(decision.timestamp).toLocaleDateString('en-IN', {
                 day: '2-digit',
                 month: 'short',
@@ -52,226 +47,191 @@ export const MandiMandateReceipt: React.FC<MandiMandateReceiptProps> = ({
                 minute: '2-digit',
               }) : '21 Nov 2026, 14:30'}
             </div>
-            <div className="text-xs font-bold text-soil mt-1">
-              Crop: <span className="uppercase text-forest font-black">{decision.cropName}</span> · {decision.totalQuantityKg.toLocaleString('en-IN')} kg
-            </div>
           </div>
 
-          {/* Red/Green Stamp Motif from reference image */}
           <div className="flex flex-col items-end gap-1">
-            <div className="stamp-box">
+            <span className="px-2.5 py-0.5 rounded-full bg-emerald-50 text-emerald-700 border border-emerald-200 text-[10px] font-bold">
               ILLUSTRATIVE
-            </div>
-            <div className="text-[9px] font-mono text-leaf flex items-center gap-0.5 font-bold">
-              <ShieldCheck className="w-3 h-3" />
+            </span>
+            <div className="text-[10px] text-emerald-600 flex items-center gap-1 font-semibold">
+              <ShieldCheck className="w-3.5 h-3.5" />
               <span>CODE VERIFIED</span>
             </div>
           </div>
         </div>
 
         {/* Spoken Decision Playback Button */}
-        <div className="my-4">
+        <div className="my-5">
           <button
             onClick={isPlayingAudio ? onStopAudio : onPlayAudio}
-            className={`w-full py-3 px-4 rounded-xl border-2 border-soil flex items-center justify-between transition-all ${
+            className={`w-full py-3 px-4 rounded-2xl flex items-center justify-between transition-all ${
               isPlayingAudio
-                ? 'bg-amber text-soil font-bold shadow-neo-sm animate-pulse'
-                : 'bg-canvas-light hover:bg-amber/30 text-soil shadow-neo-sm font-bold'
+                ? 'bg-amber-500 text-white shadow-md animate-pulse'
+                : 'bg-emerald-50 hover:bg-emerald-100 text-emerald-950 border border-emerald-100'
             }`}
           >
-            <div className="flex items-center gap-2.5">
-              <div className="w-8 h-8 rounded-lg bg-soil text-white flex items-center justify-center">
-                {isPlayingAudio ? (
-                  <VolumeX className="w-4 h-4 text-amber" />
-                ) : (
-                  <Volume2 className="w-4 h-4 text-amber" />
-                )}
+            <div className="flex items-center gap-3">
+              <div className={`w-8 h-8 rounded-full flex items-center justify-center ${isPlayingAudio ? 'bg-white text-amber-600' : 'bg-emerald-600 text-white'}`}>
+                {isPlayingAudio ? <VolumeX className="w-4 h-4" /> : <Volume2 className="w-4 h-4" />}
               </div>
               <div className="text-left font-sans">
                 <div className="text-xs font-bold">
                   {isPlayingAudio ? t('decision.speaking') : t('decision.playSpoken')}
                 </div>
-                <div className="text-[10px] text-soil-muted font-mono">
+                <div className="text-[10px] opacity-80 font-mono">
                   Bulbul Neural Voice · {i18n.language.toUpperCase()}
                 </div>
               </div>
             </div>
-            <span className="text-xs font-mono font-bold px-2 py-0.5 rounded bg-white border border-soil">
+            <span className={`text-xs font-semibold px-3 py-1 rounded-full ${isPlayingAudio ? 'bg-white/20 text-white' : 'bg-white text-emerald-800 shadow-xs'}`}>
               {isPlayingAudio ? 'PAUSE' : 'LISTEN'}
             </span>
           </button>
         </div>
 
-        {/* The Allocation Split Visualization */}
-        <div className="my-4">
-          <div className="text-[11px] font-bold text-soil-muted uppercase tracking-wider mb-2 flex items-center justify-between">
-            <span>{t('decision.splitTitle')}</span>
-            <span className="text-[10px] font-normal text-soil-muted">100% Volume</span>
+        {/* The Allocation Split */}
+        <div className="my-5">
+          <div className="text-xs font-bold text-gray-500 uppercase tracking-wider mb-2 flex items-center justify-between">
+            <span>Recommended Allocation</span>
+            <span className="text-[11px] font-normal text-gray-400">100% Volume</span>
           </div>
 
-          {/* Two-tone Split Bar */}
-          <div className="w-full h-8 rounded-xl border-2 border-soil overflow-hidden flex shadow-neo-sm">
+          {/* Allocation Bar */}
+          <div className="w-full h-8 rounded-2xl bg-gray-100 overflow-hidden flex p-0.5 border border-gray-200">
             <div
               style={{ width: `${localPart.percentage}%` }}
-              className="bg-canvas-dark flex items-center justify-center text-xs font-bold text-soil border-r-2 border-soil px-1 text-center"
-              title={`${localPart.percentage}% Local`}
+              className="bg-gray-300 rounded-xl flex items-center justify-center text-xs font-bold text-gray-800"
             >
               <span>{localPart.percentage}% Local</span>
             </div>
             {distantPart && (
               <div
                 style={{ width: `${distantPart.percentage}%` }}
-                className="bg-amber flex items-center justify-center text-xs font-bold text-soil px-1 text-center"
-                title={`${distantPart.percentage}% Distant Mandi`}
+                className="bg-emerald-600 rounded-xl flex items-center justify-center text-xs font-bold text-white ml-0.5"
               >
                 <span>{distantPart.percentage}% {distantPart.mandiName.split(' ')[0]}</span>
               </div>
             )}
           </div>
 
-          {/* Allocation details cards */}
-          <div className="grid grid-cols-2 gap-2 mt-3 text-xs">
-            {/* Local segment */}
-            <div className="bg-canvas-light p-2.5 rounded-xl border border-soil/40">
-              <div className="text-[10px] text-soil-muted font-bold uppercase">
-                {t('decision.sellLocal')}
+          {/* Allocation detail boxes */}
+          <div className="grid grid-cols-2 gap-3 mt-3 text-xs">
+            <div className="bg-gray-50 p-3 rounded-2xl border border-gray-100">
+              <div className="text-[10px] text-gray-400 font-bold uppercase">
+                Sell Local Today
               </div>
-              <div className="font-bold text-sm text-soil mt-0.5">
+              <div className="font-bold text-sm text-forest mt-0.5">
                 {localPart.allocatedKg.toLocaleString('en-IN')} kg ({localPart.percentage}%)
               </div>
-              <div className="text-[11px] text-soil-muted mt-1 font-mono">
+              <div className="text-gray-500 mt-1 font-mono text-[11px]">
                 @ ₹{localPart.ratePerQuintal}/qtl
               </div>
-              <div className="text-[10px] text-leaf font-bold mt-0.5">
-                0 km · Instant Cash
+              <div className="text-[11px] text-emerald-600 font-semibold mt-0.5">
+                0 km · Instant Liquidity
               </div>
             </div>
 
-            {/* Distant segment */}
             {distantPart ? (
-              <div className="bg-amber/15 p-2.5 rounded-xl border-2 border-soil">
-                <div className="text-[10px] text-soil font-bold uppercase flex items-center gap-1">
-                  <span>{t('decision.sendDistant')}</span>
+              <div className="bg-emerald-50/70 p-3 rounded-2xl border border-emerald-100">
+                <div className="text-[10px] text-emerald-800 font-bold uppercase">
+                  Send to Distant Mandi
                 </div>
-                <div className="font-bold text-sm text-forest mt-0.5">
+                <div className="font-bold text-sm text-emerald-950 mt-0.5">
                   {distantPart.allocatedKg.toLocaleString('en-IN')} kg ({distantPart.percentage}%)
                 </div>
-                <div className="text-[11px] text-soil mt-1 font-mono font-bold">
+                <div className="text-emerald-800 mt-1 font-mono text-[11px] font-bold">
                   @ ₹{distantPart.ratePerQuintal}/qtl
                 </div>
-                <div className="text-[10px] text-forest font-bold mt-0.5">
+                <div className="text-[11px] text-emerald-700 font-semibold mt-0.5">
                   {distantPart.distanceKm} km · {distantPart.mandiName}
                 </div>
               </div>
             ) : (
-              <div className="bg-canvas-light p-2.5 rounded-xl border border-soil/40 flex items-center justify-center text-[11px] text-soil-muted">
+              <div className="bg-gray-50 p-3 rounded-2xl border border-gray-100 flex items-center justify-center text-gray-400">
                 100% Local best today
               </div>
             )}
           </div>
         </div>
 
-        {/* Net Gain Callout with Yellow Marker Highlight Motif */}
-        <div className="my-5 p-3.5 rounded-xl bg-forest text-white border-2 border-soil relative">
-          <div className="text-[10px] font-mono uppercase tracking-wider text-amber font-bold">
+        {/* Net Gain Callout */}
+        <div className="my-5 p-5 rounded-2xl bg-gradient-to-br from-emerald-600 to-emerald-800 text-white shadow-sm">
+          <div className="text-[11px] uppercase tracking-wider text-emerald-200 font-semibold">
             {t('decision.netGain')}
           </div>
           <div className="flex items-baseline gap-2 mt-1">
-            <span className="text-3xl sm:text-4xl font-black font-display tracking-tight text-white">
+            <span className="text-3xl sm:text-4xl font-display font-extrabold text-white">
               +₹{decision.netGainVsLocalRupees.toLocaleString('en-IN')}
             </span>
-            <span className="text-xs text-white/80 font-sans">
+            <span className="text-xs text-emerald-100">
               {t('decision.vsLocal')}
             </span>
           </div>
-          <div className="mt-2 text-[11px] text-amber/90 font-mono flex items-center gap-1">
-            <CheckCircle2 className="w-3.5 h-3.5 text-amber" />
-            <span>Net after diesel, truck freight & transit loss</span>
+          <div className="mt-2 text-xs text-emerald-100 flex items-center gap-1.5 font-medium">
+            <CheckCircle2 className="w-3.5 h-3.5 text-emerald-300" />
+            <span>Net calculated after diesel, freight, and transit shrinkage</span>
           </div>
         </div>
 
-        {/* Cost & Shrinkage Breakdown Table */}
-        <div className="border-t-2 border-dashed border-soil/30 pt-3 text-xs">
-          <div className="text-[11px] font-bold text-soil-muted uppercase mb-2">
+        {/* Cost & Shrinkage Breakdown */}
+        <div className="border-t border-gray-100 pt-4 text-xs">
+          <div className="text-[11px] font-bold text-gray-400 uppercase mb-3">
             {t('decision.breakdown')}
           </div>
 
-          <div className="space-y-1.5 font-mono text-[11px]">
+          <div className="space-y-2 text-xs font-sans">
             {distantPart && (
               <>
-                <div className="flex justify-between items-center py-0.5">
-                  <span className="text-soil-muted flex items-center gap-1">
-                    <Truck className="w-3 h-3 text-soil" />
-                    <span>{t('decision.transportCost')} ({distantPart.distanceKm} km)</span>
+                <div className="flex justify-between items-center py-0.5 text-gray-600">
+                  <span className="flex items-center gap-1.5">
+                    <Truck className="w-3.5 h-3.5 text-emerald-600" />
+                    <span>Transport Freight ({distantPart.distanceKm} km)</span>
                   </span>
-                  <span className="font-bold text-soil">
+                  <span className="font-semibold text-gray-900 font-mono">
                     -₹{distantPart.transportCostRupees.toLocaleString('en-IN')}
                   </span>
                 </div>
 
-                <div className="flex justify-between items-center py-0.5">
-                  <span className="text-soil-muted flex items-center gap-1">
-                    <Scale className="w-3 h-3 text-tomato" />
-                    <span>{t('decision.shrinkageLoss')} (~{distantPart.shrinkageKg} kg)</span>
+                <div className="flex justify-between items-center py-0.5 text-gray-600">
+                  <span className="flex items-center gap-1.5">
+                    <Scale className="w-3.5 h-3.5 text-red-500" />
+                    <span>Transit Shrinkage (~{distantPart.shrinkageKg} kg)</span>
                   </span>
-                  <span className="font-bold text-tomato">
+                  <span className="font-semibold text-red-600 font-mono">
                     -₹{distantPart.shrinkageRupees.toLocaleString('en-IN')}
                   </span>
                 </div>
               </>
             )}
 
-            <div className="flex justify-between items-center py-0.5">
-              <span className="text-soil-muted">APMC Commission & Handling</span>
-              <span className="font-bold text-soil">
+            <div className="flex justify-between items-center py-0.5 text-gray-600">
+              <span>APMC Commission & Handling</span>
+              <span className="font-semibold text-gray-900 font-mono">
                 -₹{(localPart.feesRupees + (distantPart ? distantPart.feesRupees : 0)).toLocaleString('en-IN')}
               </span>
             </div>
 
-            <div className="flex justify-between items-center py-1 border-t border-soil/20 font-bold text-xs">
-              <span className="text-forest uppercase">Estimated Total In-Hand</span>
-              <span className="text-base text-forest">
+            <div className="flex justify-between items-center pt-2 border-t border-gray-100 font-bold text-sm">
+              <span className="text-forest">Estimated Total In-Hand</span>
+              <span className="text-emerald-700 font-mono text-base">
                 ₹{decision.recommendedTotalNetRupees.toLocaleString('en-IN')}
               </span>
             </div>
           </div>
         </div>
 
-        {/* Shelf Life & Perishable Window */}
-        <div className="mt-4 pt-3 border-t border-soil/20 flex items-center justify-between text-[11px] text-soil-muted">
-          <span className="flex items-center gap-1 text-tomato font-bold">
-            <Clock className="w-3 h-3" />
-            <span>Perishable: 48h limit</span>
-          </span>
-          <span className="font-mono text-[10px]">
-            Updated {decision.dataFreshnessMinutesAgo}m ago
-          </span>
-        </div>
-
-        {/* Stale Data Warning if needed */}
+        {/* Stale Warning if needed */}
         {decision.isDataStale && (
-          <div className="mt-3 p-2 rounded-lg bg-amber/20 border border-amber text-soil text-[10px] flex items-center gap-1.5">
-            <AlertTriangle className="w-3.5 h-3.5 text-amber-dark flex-shrink-0" />
+          <div className="mt-4 p-3 rounded-2xl bg-amber-50 border border-amber-200 text-amber-900 text-xs flex items-center gap-2">
+            <AlertTriangle className="w-4 h-4 text-amber-600 flex-shrink-0" />
             <span>{t('decision.staleWarning')}</span>
           </div>
         )}
 
-        {/* Bottom Barcode / Verification Stamp (from reference image) */}
-        <div className="mt-5 pt-3 border-t-2 border-soil flex flex-col items-center">
-          {/* Simulated Barcode */}
-          <div className="flex items-center justify-center gap-0.5 h-8 w-4/5 my-1">
-            {Array.from({ length: 48 }).map((_, i) => (
-              <span
-                key={i}
-                className={`h-full ${
-                  i % 3 === 0 ? 'w-1 bg-soil' : i % 5 === 0 ? 'w-1.5 bg-soil' : 'w-0.5 bg-soil/70'
-                }`}
-              />
-            ))}
-          </div>
-          <div className="text-[9px] font-mono text-soil-muted tracking-widest text-center mt-1">
-            sha256 engine · verify #fasalroute-kolar-kr-tomatoes
-          </div>
+        {/* Footer verification note */}
+        <div className="mt-5 pt-3 border-t border-gray-100 flex items-center justify-between text-[11px] text-gray-400 font-mono">
+          <span>sha256 engine · #kolar-kr-tomatoes</span>
+          <span>Perishable window: 48h limit</span>
         </div>
       </div>
     </div>
