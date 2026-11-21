@@ -11,6 +11,7 @@ from .client import sarvam_client
 async def transcribe_audio(
     audio_bytes: bytes,
     language_code: str = "kn-IN",
+    filename: str = "audio.webm",
     client: Optional[Any] = None,
 ) -> Dict[str, Any]:
     """
@@ -32,7 +33,8 @@ async def transcribe_audio(
 
     # Real call to Sarvam Saaras v4 API
     start_time = time.time()
-    files = {"file": ("audio.wav", audio_bytes, "audio/wav")}
+    mime = "audio/webm" if "webm" in filename else "audio/wav"
+    files = {"file": (filename, audio_bytes, mime)}
     data = {
         "model": "saaras:v4",
         "language-code": language_code,

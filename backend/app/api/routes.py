@@ -60,7 +60,12 @@ async def voice_decision_endpoint(
 
     # Step 1: Saaras v4 (STT)
     if audio_bytes:
-        stt_res = await transcribe_audio(audio_bytes=audio_bytes, language_code=language_code)
+        fname = audio_file.filename if audio_file and audio_file.filename else "audio.webm"
+        stt_res = await transcribe_audio(
+            audio_bytes=audio_bytes,
+            language_code=language_code,
+            filename=fname,
+        )
         transcript = stt_res["transcript"]
     else:
         transcript = query_text or "2 tonnes of tomatoes in Kolar, what should I do?"
@@ -101,6 +106,7 @@ async def voice_decision_endpoint(
         "decision": llm_res["engine_output"],
         "spoken_text": llm_res["spoken_decision_text"],
         "validation_passed": llm_res["validation_passed"],
+        "audio_base64": tts_res.get("audio_base64", ""),
         "audio_playback_url": tts_res["audio_url"],
         "telemetry": {
             "total_latency_ms": total_latency,
