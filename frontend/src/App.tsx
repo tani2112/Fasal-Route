@@ -9,6 +9,7 @@ import { PriceAlerts } from './components/alerts/PriceAlerts';
 import { GroupSelling } from './components/group/GroupSelling';
 import { SarvamPipelinePanel } from './components/pipeline/SarvamPipelinePanel';
 import { ImpactAboutPage } from './pages/ImpactAboutPage';
+import { ErrorBoundary } from './components/common/ErrorBoundary';
 import type { SarvamPipelineResult } from './lib/mockSarvam';
 
 export const App: React.FC = () => {
@@ -54,24 +55,26 @@ export const App: React.FC = () => {
 
       {/* Main Content */}
       <main className="flex-1 max-w-6xl w-full mx-auto px-4 sm:px-6 py-6 sm:py-8">
-        {activeTab === 'decision' && (
-          <VoiceDecisionPage
-            isOffline={isOfflineSimulated}
-            onPipelineUpdate={(res) => setLastPipelineResult(res)}
-          />
-        )}
+        <ErrorBoundary>
+          {activeTab === 'decision' && (
+            <VoiceDecisionPage
+              isOffline={isOfflineSimulated}
+              onPipelineUpdate={(res) => setLastPipelineResult(res)}
+            />
+          )}
 
-        {activeTab === 'compare' && <MandiCompare />}
+          {activeTab === 'compare' && <MandiCompare />}
 
-        {activeTab === 'alerts' && <PriceAlerts />}
+          {activeTab === 'alerts' && <PriceAlerts />}
 
-        {activeTab === 'groups' && <GroupSelling />}
+          {activeTab === 'groups' && <GroupSelling />}
 
-        {activeTab === 'pipeline' && (
-          <SarvamPipelinePanel pipelineData={lastPipelineResult} />
-        )}
+          {activeTab === 'pipeline' && (
+            <SarvamPipelinePanel pipelineData={lastPipelineResult} />
+          )}
 
-        {activeTab === 'impact' && <ImpactAboutPage />}
+          {activeTab === 'impact' && <ImpactAboutPage />}
+        </ErrorBoundary>
       </main>
 
       {/* Modern AgroFarm Footer */}

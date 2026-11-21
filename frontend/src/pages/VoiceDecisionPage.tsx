@@ -1,12 +1,14 @@
 import React, { useState, useRef } from 'react';
 import { useTranslation } from 'react-i18next';
-import { Sparkles, ArrowRight, Volume2, ShieldCheck, CheckCircle2, MapPin, Truck, Leaf, Clock, Scale, AlertCircle } from 'lucide-react';
+import { Sparkles, ArrowRight, Volume2, ShieldCheck, CheckCircle2, MapPin, Truck, Leaf, Clock, Scale, AlertCircle, Search } from 'lucide-react';
 import { VoiceMic } from '../components/voice/VoiceMic';
 import { MandiMandateReceipt } from '../components/decision/MandiMandateReceipt';
 import { simulateSarvamPipeline, type SarvamPipelineResult } from '../lib/mockSarvam';
 import { optimizeHarvestDecision, type DecisionEngineOutput } from '../lib/offlineEngine';
+import { normalizeDecision } from '../lib/normalizeDecision';
 import { playMicStartSound, playMicStopSound, playDecisionChime, speakText } from '../lib/audioSynth';
 import { useAudioRecorder } from '../hooks/useAudioRecorder';
+import { ErrorBoundary } from '../components/common/ErrorBoundary';
 
 interface VoiceDecisionPageProps {
   isOffline: boolean;
@@ -45,6 +47,7 @@ export const VoiceDecisionPage: React.FC<VoiceDecisionPageProps> = ({
     '2 tonnes of tomatoes in Kolar, what should I do?'
   );
   const [lastBase64Audio, setLastBase64Audio] = useState<string | null>(null);
+  const [searchInput, setSearchInput] = useState<string>('');
 
   const sampleQueries = [
     { text: t('sampleQuery1'), label: 'Ramesh Demo (2t Tomatoes)' },
@@ -57,26 +60,19 @@ export const VoiceDecisionPage: React.FC<VoiceDecisionPageProps> = ({
     await startRecording();
   };
 
-  const handleStopRecordAndProcess = async (fallbackQueryText?: string) => {
-    playMicStopSound();
+  const handleTextQuerySubmit = async (queryText: string) => {
+    if (!queryText.trim()) return;
     setIsProcessing(true);
+    setUserTranscript(queryText);
+    playMicStopSound();
 
-    const audioBlob = await stopRecording();
-
-    // Map UI language to BCP-47
     const langCode = i18n.language === 'kn' ? 'kn-IN' : i18n.language === 'hi' ? 'hi-IN' : i18n.language === 'mr' ? 'mr-IN' : i18n.language === 'ta' ? 'ta-IN' : 'en-IN';
 
-    try {
-      if (!isOffline && (audioBlob || fallbackQueryText)) {
-        // Attempt live FastAPI backend with real Sarvam AI
+    // 1. Attempt live FastAPI backend with real Sarvam AI
+    if (!isOffline) {
+      try {
         const formData = new FormData();
-        if (audioBlob) {
-          const extension = audioBlob.type.includes('webm') ? 'webm' : audioBlob.type.includes('mp4') ? 'mp4' : 'wav';
-          formData.append('audio_file', audioBlob, `recording.${extension}`);
-        }
-        if (fallbackQueryText) {
-          formData.append('query_text', fallbackQueryText);
-        }
+        formData.append('query_text', queryText);
         formData.append('language_code', langCode);
         formData.append('local_mandi_id', 'kolar');
 
@@ -91,20 +87,138 @@ export const VoiceDecisionPage: React.FC<VoiceDecisionPageProps> = ({
             setUserTranscript(data.transcript);
           }
           if (data.decision) {
-            setDecision(data.decision);
+            setDecision(normalizeDecision(data.decision));
           }
           if (data.audio_base64) {
             setLastBase64Audio(data.audio_base64);
           }
 
-          // Build pipeline result for Sarvam Telemetry Inspector
+          const pipelineRes: SarvamPipelineResult = {
+            transcript: data.transcript || queryText,
+            detectedLanguage: data.language_code || langCode,
+            intent: data.intent || 'sell_advice',
+            entities: data.entities || { crop: 'tomato', quantityKg: 2000, location: 'Kolar' },
+            toolCall: data.tool_call || { toolName: 'optimize_harvest_split', arguments: {} },
+            engineOutput: normalizeDecision(data.decision),
+            localizedResponseText: data.spoken_text || '',
+            audioDurationSeconds: 4.8,
+            logs: [
+              {
+                step: 'HEAR',
+                model: 'Text / STT Input',
+                name: 'Direct Farmer Search',
+                latencyMs: 12,
+                status: 'success',
+                detail: `Input processed: "${queryText}"`,
+              },
+              {
+                step: 'THINK',
+                model: 'Sarvam-105B (Live)',
+                name: 'NLU Intent & Tool Calling',
+                latencyMs: data.telemetry?.models?.think?.latency_ms || 360,
+                status: 'success',
+                detail: `Extracted entities and invoked optimize_harvest_split tool.`,
+              },
+              {
+                step: 'DECIDE',
+                model: 'FasalRoute Engine',
+                name: 'Deterministic Python Core',
+                latencyMs: data.telemetry?.models?.decide?.latency_ms || 16,
+                status: 'success',
+                detail: `Pure mathematical profit calculation. Rupee values locked.`,
+              },
+              {
+                step: 'WRITE',
+                model: 'Sarvam-105B (Live)',
+                name: 'Localized Natural Synthesis',
+                latencyMs: data.telemetry?.models?.write?.latency_ms || 280,
+                status: 'success',
+                detail: `Generated spoken advice matching engine numbers.`,
+              },
+              {
+                step: 'SPEAK',
+                model: 'Bulbul v4 Flash (Live)',
+                name: 'Neural Indian TTS',
+                latencyMs: data.telemetry?.models?.speak?.latency_ms || 260,
+                status: 'success',
+                detail: `Generated real MP3 audio stream for playback.`,
+              },
+            ],
+            totalLatencyMs: data.telemetry?.total_latency_ms || 950,
+            estimatedCreditsUsed: 0.035,
+          };
+
+          if (onPipelineUpdate) {
+            onPipelineUpdate(pipelineRes);
+          }
+          playDecisionChime();
+          setIsProcessing(false);
+          return;
+        }
+      } catch (err) {
+        console.warn('Live backend query failed, falling back to local engine:', err);
+      }
+    }
+
+    // 2. Offline / Local fallback simulation
+    try {
+      const result = await simulateSarvamPipeline(queryText, i18n.language);
+      setDecision(normalizeDecision(result.engineOutput));
+      if (onPipelineUpdate) {
+        onPipelineUpdate(result);
+      }
+      playDecisionChime();
+    } catch (err) {
+      console.error('Local engine fallback error:', err);
+    } finally {
+      setIsProcessing(false);
+    }
+  };
+
+  const handleStopRecordAndProcess = async (fallbackQueryText?: string) => {
+    if (fallbackQueryText) {
+      await handleTextQuerySubmit(fallbackQueryText);
+      return;
+    }
+
+    playMicStopSound();
+    setIsProcessing(true);
+
+    const audioBlob = await stopRecording();
+    const langCode = i18n.language === 'kn' ? 'kn-IN' : i18n.language === 'hi' ? 'hi-IN' : i18n.language === 'mr' ? 'mr-IN' : i18n.language === 'ta' ? 'ta-IN' : 'en-IN';
+
+    if (!isOffline && audioBlob) {
+      try {
+        const formData = new FormData();
+        const extension = audioBlob.type.includes('webm') ? 'webm' : audioBlob.type.includes('mp4') ? 'mp4' : 'wav';
+        formData.append('audio_file', audioBlob, `recording.${extension}`);
+        formData.append('language_code', langCode);
+        formData.append('local_mandi_id', 'kolar');
+
+        const resp = await fetch('http://localhost:8000/api/voice/decision', {
+          method: 'POST',
+          body: formData,
+        });
+
+        if (resp.ok) {
+          const data = await resp.json();
+          if (data.transcript) {
+            setUserTranscript(data.transcript);
+          }
+          if (data.decision) {
+            setDecision(normalizeDecision(data.decision));
+          }
+          if (data.audio_base64) {
+            setLastBase64Audio(data.audio_base64);
+          }
+
           const pipelineRes: SarvamPipelineResult = {
             transcript: data.transcript,
             detectedLanguage: data.language_code,
             intent: data.intent || 'sell_advice',
             entities: data.entities || { crop: 'tomato', quantityKg: 2000, location: 'Kolar' },
             toolCall: data.tool_call || { toolName: 'optimize_harvest_split', arguments: {} },
-            engineOutput: data.decision,
+            engineOutput: normalizeDecision(data.decision),
             localizedResponseText: data.spoken_text,
             audioDurationSeconds: 4.8,
             logs: [
@@ -160,13 +274,16 @@ export const VoiceDecisionPage: React.FC<VoiceDecisionPageProps> = ({
           setIsProcessing(false);
           return;
         }
+      } catch (err) {
+        console.warn('Live audio upload failed, falling back to local engine:', err);
       }
+    }
 
-      // Offline or Fallback Simulation
-      const query = fallbackQueryText || userTranscript || '2 tonnes of tomatoes in Kolar, what should I do?';
-      setUserTranscript(query);
+    // Local engine fallback
+    try {
+      const query = userTranscript || '2 tonnes of tomatoes in Kolar, what should I do?';
       const result = await simulateSarvamPipeline(query, i18n.language);
-      setDecision(result.engineOutput);
+      setDecision(normalizeDecision(result.engineOutput));
       if (onPipelineUpdate) {
         onPipelineUpdate(result);
       }
@@ -241,8 +358,20 @@ export const VoiceDecisionPage: React.FC<VoiceDecisionPageProps> = ({
     setIsPlayingAudio(false);
   };
 
-  const localPart = decision.split.find((s) => s.isLocal) || decision.split[0];
-  const distantPart = decision.split.find((s) => !s.isLocal);
+  const splitList = decision?.split || [];
+  const localPart =
+    splitList.find((s) => s.isLocal) ||
+    splitList[0] || {
+      percentage: 40,
+      allocatedKg: 800,
+      ratePerQuintal: 1400,
+      isLocal: true,
+      mandiName: 'Kolar APMC',
+    };
+  const distantPart = splitList.find((s) => !s.isLocal);
+
+  const netGain = Number(decision?.netGainVsLocalRupees ?? 0);
+  const totalKg = Number(decision?.totalQuantityKg ?? 2000);
 
   return (
     <div className="space-y-10">
@@ -315,15 +444,47 @@ export const VoiceDecisionPage: React.FC<VoiceDecisionPageProps> = ({
               </div>
             </div>
 
+            {/* Quick Question / Search Input Bar */}
+            <form
+              onSubmit={(e) => {
+                e.preventDefault();
+                if (searchInput.trim()) {
+                  handleTextQuerySubmit(searchInput.trim());
+                  setSearchInput('');
+                }
+              }}
+              className="pt-3 border-t border-gray-100 flex items-center gap-2"
+            >
+              <div className="relative flex-1">
+                <Search className="w-4 h-4 text-emerald-600 absolute left-3 top-1/2 -translate-y-1/2" />
+                <input
+                  type="text"
+                  value={searchInput}
+                  onChange={(e) => setSearchInput(e.target.value)}
+                  placeholder="Or type/search: e.g. 5 tonnes onions in Kolar..."
+                  className="w-full pl-9 pr-3 py-2 rounded-2xl bg-gray-50 hover:bg-emerald-50/40 focus:bg-white border border-gray-200 focus:border-emerald-500 text-xs text-forest focus:outline-none transition-all"
+                />
+              </div>
+              <button
+                type="submit"
+                disabled={isProcessing || !searchInput.trim()}
+                className="px-4 py-2 rounded-2xl bg-emerald-600 hover:bg-emerald-700 disabled:opacity-40 text-white text-xs font-semibold flex items-center gap-1.5 transition-all shadow-xs flex-shrink-0"
+              >
+                <span>Ask</span>
+                <ArrowRight className="w-3.5 h-3.5" />
+              </button>
+            </form>
+
             {/* Quick Demo Scenarios */}
-            <div className="pt-3 border-t border-gray-100 flex flex-wrap items-center gap-2">
+            <div className="pt-2 flex flex-wrap items-center gap-2">
               <span className="text-[11px] font-semibold text-gray-400">Or tap scenario:</span>
               {sampleQueries.map((q, idx) => (
                 <button
                   key={idx}
+                  type="button"
                   disabled={isProcessing || isRecording}
-                  onClick={() => handleStopRecordAndProcess(q.text)}
-                  className="px-3 py-1 rounded-full text-xs font-medium bg-gray-50 hover:bg-emerald-50 text-gray-700 hover:text-emerald-700 border border-gray-200 hover:border-emerald-200 transition-all"
+                  onClick={() => handleTextQuerySubmit(q.text)}
+                  className="px-3 py-1 rounded-full text-xs font-medium bg-gray-50 hover:bg-emerald-50 text-gray-700 hover:text-emerald-700 border border-gray-200 hover:border-emerald-200 transition-all cursor-pointer"
                 >
                   {q.label}
                 </button>
@@ -365,7 +526,7 @@ export const VoiceDecisionPage: React.FC<VoiceDecisionPageProps> = ({
                 <div>
                   <span className="text-xs text-emerald-200 block">Calculated Net In-Hand Gain</span>
                   <span className="text-3xl sm:text-4xl font-display font-extrabold text-white">
-                    +₹{decision.netGainVsLocalRupees.toLocaleString('en-IN')}
+                    +₹{netGain.toLocaleString('en-IN')}
                   </span>
                 </div>
                 <span className="text-xs text-emerald-200 font-medium">
@@ -382,26 +543,26 @@ export const VoiceDecisionPage: React.FC<VoiceDecisionPageProps> = ({
                 Split Allocation
               </span>
               <span className="text-xs font-bold text-emerald-700 bg-emerald-50 px-2 py-0.5 rounded-full">
-                {decision.totalQuantityKg.toLocaleString('en-IN')} kg
+                {totalKg.toLocaleString('en-IN')} kg
               </span>
             </div>
 
             <div className="w-full h-3 rounded-full bg-gray-100 overflow-hidden flex">
-              <div style={{ width: `${localPart.percentage}%` }} className="bg-gray-400 h-full" />
+              <div style={{ width: `${localPart.percentage || 40}%` }} className="bg-gray-400 h-full" />
               {distantPart && (
-                <div style={{ width: `${distantPart.percentage}%` }} className="bg-emerald-600 h-full" />
+                <div style={{ width: `${distantPart.percentage || 60}%` }} className="bg-emerald-600 h-full" />
               )}
             </div>
 
             <div className="space-y-1.5 text-xs">
               <div className="flex justify-between items-center text-gray-600">
-                <span>Local ({localPart.percentage}%):</span>
-                <span className="font-bold text-forest">{localPart.allocatedKg} kg @ ₹{localPart.ratePerQuintal}</span>
+                <span>Local ({localPart.percentage || 40}%):</span>
+                <span className="font-bold text-forest">{(localPart.allocatedKg ?? 0).toLocaleString('en-IN')} kg @ ₹{localPart.ratePerQuintal ?? 0}</span>
               </div>
               {distantPart && (
                 <div className="flex justify-between items-center text-emerald-800 font-medium">
-                  <span>KR Market ({distantPart.percentage}%):</span>
-                  <span className="font-bold text-emerald-700">{distantPart.allocatedKg} kg @ ₹{distantPart.ratePerQuintal}</span>
+                  <span>KR Market ({distantPart.percentage || 60}%):</span>
+                  <span className="font-bold text-emerald-700">{(distantPart.allocatedKg ?? 0).toLocaleString('en-IN')} kg @ ₹{distantPart.ratePerQuintal ?? 0}</span>
                 </div>
               )}
             </div>
